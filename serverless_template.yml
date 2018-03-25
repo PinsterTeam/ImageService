@@ -3,8 +3,9 @@ service: image-service
 provider:
   name: aws
   runtime: nodejs6.10
+  region: us-east-1
   stage: ${opt:stage, self:custom.defaultStage}
-  profile: ${self:custom.profiles.${self:provider.stage}, default}
+  profile: ${self:custom.profiles.${self:provider.stage}, 'default'}
   deploymentBucket:
       name: "pinster-serverless-deploy-${self:custom.profiles.${self:provider.stage}}"
   package:
@@ -37,12 +38,18 @@ custom:
   profiles:
     dev: dev
     prod: prod
+  customDomain:
+    domainName: api-${self:provider.stage}.pinster.info
+    basePath: ''
+    stage: ${self:provider.stage}
+    createRoute53Record: true
 
   # if the bucket name is changed then you must go to the resources section and change it there too!
   # This is a stupid limitation of serverless
   # https://github.com/serverless/serverless/issues/2486
   # https://github.com/serverless/serverless/issues/2749
   imageUploaderBucket: pinster-image-service
+
 
 functions:
   newImageUploader:
@@ -129,3 +136,4 @@ resources:
 plugins:
   - serverless-step-functions
   - serverless-pseudo-parameters
+  - serverless-domain-manager
