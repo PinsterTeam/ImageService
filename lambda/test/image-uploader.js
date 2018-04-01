@@ -29,7 +29,9 @@ describe("ImageUploader", function () {
             }
         };
 
-        expect(ImageUploader.parseRequest(new eventFixture())).to.deep.include(goodPayload['data'])
+        ImageUploader.parseRequest(new eventFixture(), function(err, result) {
+            expect(result).to.deep.include(goodPayload['data']);
+        });
     });
 
     it("Blows up on missing year", function () {
