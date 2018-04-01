@@ -1,8 +1,4 @@
 module.exports = class Base64Handler {
-    static getBuffer(prunedBase64String) {
-        return Buffer.from(prunedBase64String, 'base64');
-    }
-
     static pruneBase64String(base64Image) {
         return base64Image.substr(base64Image.indexOf(',') + 1)
     }

@@ -9,7 +9,7 @@ let base64ImageMD5 = 'C8B79648C60D9489F68DC5F25A1D7A9E';
 describe('FileBuilder', function() {
     it('Returns the correct file information', function() {
         let fileBuilder = new FileBuilder();
-        let file = fileBuilder.getFile(base64ImageMetdata + base64Image)
+        let file = fileBuilder.getFile(base64ImageMetadata + base64Image)
         let mockFile = {
             Key: 'raw/' + base64ImageMD5 + '.png',
             Body: Buffer.from(base64Image, 'base64')
