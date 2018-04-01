@@ -1,6 +1,8 @@
 module.exports = class Base64Handler {
     static getBuffer(prunedBase64String) {
-        return Buffer.from(prunedBase64String, 'base64');
+        console.log(prunedBase64String)
+        let blah = Buffer.from(prunedBase64String, 'base64');
+        return blah;
     }
 
     static pruneBase64String(base64Image) {
