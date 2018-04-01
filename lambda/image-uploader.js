@@ -64,12 +64,12 @@ module.exports = class ImageUploader {
             }
             else {
                 let imageFile = this.FileBuilder.getFile(parsedRequest.image);
-                callback(err, parsedRequest, imageFile);
+                imageFile.Bucket = process.env.BUCKET_NAME;
+                imageFile.Metadata = parsedRequest.metadata;
+                callback(undefined, imageFile);
             }
         });
-        tasks.push((parsedRequest, imageFile, callback) => {
-            imageFile.Bucket = process.env.BUCKET_NAME;
-            imageFile.Metadata = parsedRequest.metadata;
+        tasks.push((imageFile, callback) => {
             this.FileWriter.saveObject(imageFile, (err, data) => {
                 callback(err, imageFile, data);
             });

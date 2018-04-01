@@ -8,7 +8,7 @@ let base64Image = 'iVBORw0KGgoAAAANSUhEUgAAAAsAAAAECAYAAABY+sXzAAAABHNCSVQICAgIf
 describe("Base64 handler", function () {
     it("Gets the correct mime type", function () {
         let mimeType = Base64Handler.getMimeType(base64ImageMetadata + base64Image);
-        expect(mimeType).to.deep.equal({ext: 'png', mime: 'image/png'});
+        expect(mimeType).to.deep.equal({type: 'image', subtype: 'png'});
     });
 
     it("Removes everything in front of comma, inclusive", function () {
