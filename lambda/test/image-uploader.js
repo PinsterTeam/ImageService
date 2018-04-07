@@ -30,7 +30,7 @@ describe("ImageUploader", function () {
         };
 
         ImageUploader.parseRequest(new eventFixture(), function(err, result) {
-            expect(result).to.deep.include(goodPayload['data']);
+            expect(result).to.deep.include(goodPayload.data);
         });
     });
 

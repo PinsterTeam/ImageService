@@ -4,6 +4,7 @@ const FileWriter = require('./file-writer');
 const FileBuilder = require('./file-builder');
 const AWSS3 = require('aws-sdk/clients/s3');
 const _ = require('lodash');
+const async = require('async');
 
 module.exports = class ImageUploader {
     constructor(fileBuilder, fileWriter) {
@@ -16,16 +17,16 @@ module.exports = class ImageUploader {
 
         // TODO - JSON Schema Validation
 
-        let image = data["image"];
-        let metadata = data['metadata'];
+        let image = data.image;
+        let metadata = data.metadata;
         let year = null;
         let userId = null;
-        if (metadata != null) {
-            year = metadata['year'];
-            userId = metadata['user_id'];
+        if (metadata !== null) {
+            year = metadata.year;
+            userId = metadata.user_id;
         }
 
-        if (data == null || userId == null || metadata == null || year == null) {
+        if (data === null || userId === null || metadata === null || year === null) {
             let response = {
                 statusCode: 400,
                 body: JSON.stringify({
@@ -41,7 +42,7 @@ module.exports = class ImageUploader {
                     }
                 })
             };
-            callback(response)
+            callback(response);
         }
         else {
             callback(undefined, {
@@ -94,6 +95,6 @@ module.exports = class ImageUploader {
 };
 
 module.exports.upload = (event, context, callback) => {
-    let imageUploader = new ImageUploader();
+    let imageUploader = new exports.ImageUploader();
     imageUploader.perform(event, context, callback);
 };
