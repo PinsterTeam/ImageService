@@ -6,7 +6,7 @@ const stepfunctions = new AWS.StepFunctions();
 module.exports.startExecution = (event, context, callback) => {
     console.log('startExecution');
 
-    let s3Event = event.Records[0].s3..object;
+    let s3Event = event.Records[0].s3.object;
     let s3BucketName = event.Records[0].s3.bucket.name;
 
     console.log(s3Event);
