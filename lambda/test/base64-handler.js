@@ -1,8 +1,8 @@
 'use strict';
 
-let expect = require('chai').expect;
-let Base64Handler = require('../lib/base64-handler');
-let Base64RegexMismatch = require('../lib/base64-regex-mismatch');
+const expect = require('chai').expect;
+const Base64Handler = require('../lib/base64-handler');
+const Base64RegexMismatch = require('../lib/base64-regex-mismatch');
 
 describe("Base64 handler", function () {
     it("Gets the correct mime type and image", function () {
