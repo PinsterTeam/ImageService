@@ -29,14 +29,14 @@ module.exports = class ImageUploader {
             let response = {
                 statusCode: 400,
                 body: JSON.stringify({
-                    error: "Bad Request. Required fields are missing.",
+                    error: 'Bad Request. Required fields are missing.',
                     example_body: {
                         data: {
                             metadata: {
-                                user_id: "uuid",
-                                year: "integer year"
+                                user_id: 'uuid',
+                                year: 'integer year'
                             },
-                            image: "base64 encoded image"
+                            image: 'base64 encoded image'
                         }
                     }
                 })
@@ -60,7 +60,7 @@ module.exports = class ImageUploader {
             if (_.isObject(parsedRequest) &&
                 _.isNumber(parsedRequest.statusCode) &&
                 parsedRequest.statusCode === 400) {
-                callback("The parsed request contained an error");
+                callback('The parsed request contained an error');
             }
             else {
                 let imageFile = this.FileBuilder.getFile(parsedRequest.image);
