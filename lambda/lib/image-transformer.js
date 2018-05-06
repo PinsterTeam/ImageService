@@ -22,7 +22,5 @@ module.exports = class ImageTransformer {
 
             callback(undefined, parsedParameters);
         }
-
-
     }
 };
