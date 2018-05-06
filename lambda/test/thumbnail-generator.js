@@ -45,7 +45,8 @@ const ExpectedResponse = {
 
 describe('Thumbnail Generator', function () {
     it('Gets the correct mime type and image', function () {
-        let thumbnailGenerator = new ThumbnailGenerator('bucket', 'url', new MockS3(), new MockImageTransformer());
+        let thumbnailGenerator = new ThumbnailGenerator('bucket', 'http://image-service.api.pinster.io',
+            new MockS3(), new MockImageTransformer());
         thumbnailGenerator.generate(MockEvent, (err, data) => {
             console.log(util.inspect(err, {depth: 5}));
 
