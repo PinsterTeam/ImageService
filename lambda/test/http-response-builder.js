@@ -15,8 +15,7 @@ describe('HttpResponseBuilder', function () {
         expect(responseBuilder.generateResponse()).to.deep.equal({
             statusCode: 500,
             headers: {},
-            body: JSON.stringify({'dumb': 'arse'}
-            )
+            body: JSON.stringify({'dumb': 'arse'})
         });
     });
 });

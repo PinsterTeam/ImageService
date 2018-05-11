@@ -20,7 +20,8 @@ module.exports = class ImageTransformer {
                 .resize(width, height)
                 .max()
                 .toFormat(format)
-                .toBuffer();
+                .toBuffer()
+                .resolve();
 
             callback(undefined, parsedParameters);
         }
