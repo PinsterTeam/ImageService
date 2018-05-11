@@ -19,13 +19,14 @@ module.exports = class ImageUploader {
         }
     }
 
-    static parseRequest(event, callback) {
+    parseRequest(event, callback) {
         let data = JSON.parse(event.body).data;
 
         // TODO - JSON Schema Validation
 
         let image = data.image;
         let metadata = data.metadata;
+        let bucket = this.bucket;
         let year = null;
         let userId = null;
         if (metadata !== null) {
@@ -53,7 +54,8 @@ module.exports = class ImageUploader {
         else {
             callback(undefined, {
                 metadata: metadata,
-                image: image
+                image: image,
+                bucket: bucket
             });
         }
     }
@@ -62,14 +64,11 @@ module.exports = class ImageUploader {
         let tasks = [];
 
         tasks.push((callback) => {
-            ImageUploader.parseRequest(event, callback);
+            this.parseRequest(event, callback);
         });
 
         tasks.push((parsedRequest, callback) => {
-            let imageFile = this.FileBuilder.getFile(parsedRequest.image);
-            imageFile.Bucket = this.bucket;
-            imageFile.Metadata = parsedRequest.metadata;
-            callback(undefined, imageFile);
+            this.FileBuilder.getFile(parsedRequest.image, callback);
         });
 
         tasks.push((imageFile, callback) => {

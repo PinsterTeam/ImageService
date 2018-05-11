@@ -46,7 +46,7 @@ describe('ImageUploader', function () {
             }
         };
 
-        ImageUploader.parseRequest(new eventFixture(), function (err, result) {
+        new ImageUploader().parseRequest(new eventFixture(), function (err, result) {
             expect(result).to.deep.include(goodPayload.data);
         });
     });
@@ -59,7 +59,7 @@ describe('ImageUploader', function () {
         };
         let callback = sinon.spy();
 
-        ImageUploader.parseRequest(new eventFixture(), callback);
+        new ImageUploader().parseRequest(new eventFixture(), callback);
         expect(callback.called).to.be.true;
     });
 
