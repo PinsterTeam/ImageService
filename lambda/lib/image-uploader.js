@@ -68,7 +68,7 @@ module.exports = class ImageUploader {
         });
 
         tasks.push((parsedRequest, callback) => {
-            this.FileBuilder.getFile(parsedRequest.image, callback);
+            this.FileBuilder.getFile(parsedRequest, callback);
         });
 
         tasks.push((imageFile, callback) => {
