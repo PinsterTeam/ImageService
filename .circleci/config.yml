@@ -39,7 +39,7 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: /build/lambda
+          at: /build
       - run:
           name: Install serverless
           command: npm install -g serverless
@@ -57,7 +57,7 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: /build/lambda
+          at: /build
       - run:
           name: Install serverless
           command: npm install -g serverless

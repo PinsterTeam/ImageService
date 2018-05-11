@@ -12,8 +12,11 @@ provider:
   package:
     exclude:
       - .git/**
-      - .travis.yml
+      - .circleci/
       - lambda/test
+      - node_modules
+      - *.md
+
 
   iamRoleStatements:
     - Effect: "Allow"
