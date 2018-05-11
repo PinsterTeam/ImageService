@@ -98,10 +98,12 @@ module.exports = class ThumbnailGenerator {
         let tasks = [];
 
         tasks.push((callback) => {
+            console.log('Parsing request');
             ThumbnailGenerator.parseRequestedImage(event.queryStringParameters.key, callback);
         });
 
         tasks.push((parsedParameters, callback) => {
+            console.log('Checking parameters');
             if (self.allowedDimensions.size > 0 && !self.allowedDimensions.has(parsedParameters.dimensions)) {
                 callback(new BadRequest(`Invalid dimensions specified: ${parsedParameters.dimensions}. ` +
                     `Valid dimensions are: ${self.allowedDimensions}`));
@@ -112,15 +114,18 @@ module.exports = class ThumbnailGenerator {
         });
 
         tasks.push((parsedParameters, callback) => {
+            console.log('Downloading file');
             this.download(parsedParameters, callback);
         });
 
         tasks.push((parsedParameters, callback) => {
+            console.log('Transforming image');
             this.imageTransformer.transformImage(parsedParameters, callback);
         });
 
 
         tasks.push((parsedParameters, callback) => {
+            console.log('Uploading image');
             this.upload(parsedParameters, callback);
         });
 
