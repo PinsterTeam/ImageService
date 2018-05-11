@@ -54,6 +54,7 @@ module.exports = class ThumbnailGenerator {
     }
 
     upload(parsedParameters, callback) {
+        console.log(util.inspect(parsedParameters, {depth: 5}));
         this.s3.putObject(
             {
                 Body: parsedParameters.buffer,
@@ -63,6 +64,7 @@ module.exports = class ThumbnailGenerator {
                 CacheControl: `max-age=${MAX_AGE}`,
             }, (err) => {
                 if (err) {
+                    console.log(util.inspect(err, {depth: 5}));
                     callback(new InternalServerError(err));
                 }
                 else {
@@ -122,7 +124,6 @@ module.exports = class ThumbnailGenerator {
             console.log('Transforming image');
             this.imageTransformer.transformImage(parsedParameters, callback);
         });
-
 
         tasks.push((parsedParameters, callback) => {
             console.log('Uploading image');
