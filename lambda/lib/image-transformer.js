@@ -1,3 +1,5 @@
+'use strict';
+
 const Sharp = require('sharp');
 const _ = require('lodash');
 const InternalServerError = require('./internal-server-error');

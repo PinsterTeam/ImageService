@@ -38,7 +38,7 @@ const ExpectedResponse = {
             Pragma: 'no-cache',
             Expires: '0'
         },
-    body: '""'
+    body: JSON.stringify('')
 };
 
 

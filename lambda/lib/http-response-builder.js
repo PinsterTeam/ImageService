@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = class HttpResponseBuilder {
     constructor(statusCode, body, headers = {}) {
         this.statusCode = statusCode;

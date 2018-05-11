@@ -60,7 +60,11 @@ describe('StepFunctions', function () {
             }
 
             expect(err).to.equal(undefined);
-            expect(data).to.deep.equal({statusCode: 200, body: '"Step function is executing"', headers: {}});
+            expect(data).to.deep.equal({
+                statusCode: 200,
+                body: JSON.stringify('Step function is executing'),
+                headers: {}
+            });
         });
     });
 });

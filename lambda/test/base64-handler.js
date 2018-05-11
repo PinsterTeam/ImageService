@@ -12,9 +12,9 @@ describe('Base64 handler', function () {
         expect(base64Handler.base64Image).to.equal('testing');
     });
 
-    it('Throws a regex mismatch exception', function() {
+    it('Throws a regex mismatch exception', function () {
         let fakeImage = 'blah';
-        let throwTest = function() {
+        let throwTest = function () {
             new Base64Handler(fakeImage);
         };
         expect(throwTest).to.throw(Base64RegexMismatch);

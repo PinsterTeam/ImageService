@@ -1,3 +1,5 @@
+'use strict';
+
 const HttpResponseBuilder = require('./http-response-builder');
 
 module.exports = class InternalServerError extends HttpResponseBuilder {

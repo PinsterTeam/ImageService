@@ -1,3 +1,5 @@
+'use strict';
+
 const Base64RegexMismatch = require('./base64-regex-mismatch');
 
 module.exports = class Base64Handler {
@@ -13,7 +15,7 @@ module.exports = class Base64Handler {
             this.buffer = Buffer.from(this.base64Image, 'base64');
         }
         else {
-            throw new Base64RegexMismatch("Your image did not match the base64 regex");
+            throw new Base64RegexMismatch('Your image did not match the base64 regex');
         }
     }
 };

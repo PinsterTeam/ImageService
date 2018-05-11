@@ -75,7 +75,7 @@ describe('ImageUploader', function () {
             }
 
             expect(err).to.equal(undefined);
-            expect(data).to.deep.equal({ statusCode: 200, body: '"asdf"', headers: {} }
+            expect(data).to.deep.equal({statusCode: 200, body: JSON.stringify('asdf'), headers: {}}
             );
         };
 

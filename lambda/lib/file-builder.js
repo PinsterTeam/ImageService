@@ -1,4 +1,6 @@
-const Base64Handler = require("./base64-handler");
+'use strict';
+
+const Base64Handler = require('./base64-handler');
 const _ = require('lodash');
 const md5 = require('md5');
 
