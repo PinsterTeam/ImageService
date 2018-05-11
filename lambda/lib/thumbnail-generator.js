@@ -54,7 +54,6 @@ module.exports = class ThumbnailGenerator {
     }
 
     upload(parsedParameters, callback) {
-        console.log(util.inspect(parsedParameters, {depth: 5}));
         this.s3.putObject(
             {
                 Body: parsedParameters.buffer,
@@ -82,7 +81,7 @@ module.exports = class ThumbnailGenerator {
     download(parsedParameters, callback) {
         this.s3.getObject({Bucket: this.bucket, Key: parsedParameters.originalKey}, (err, data) => {
             if (err) {
-                console.log(`we had an error ${err}`);
+                console.log(util.inspect(err, {depth: 5}));
                 callback(new InternalServerError(err));
             }
             else {
