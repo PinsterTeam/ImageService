@@ -1,8 +1,8 @@
 const ImageUploader = require('./lib/image-uploader');
 const StepFunctions = require('./lib/step-functions');
-const ThumbnailGenerator = require('./lib/thumbnail-generator');
 const Moderator = require('./lib/moderator');
 const Notifier = require('./lib/notifier');
+const ThumbnailGenerator = require('./lib/thumbnail-generator');
 
 module.exports.upload = (event, context, callback) => {
     let imageUploader = new ImageUploader();

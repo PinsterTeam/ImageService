@@ -5,7 +5,7 @@ services:
   - docker
 
 node_js:
-  - "6.10"
+  - "8"
 
 before_install:
   - "npm install"
@@ -29,5 +29,5 @@ deploy:
     script: "bash ${TRAVIS_BUILD_DIR}/deploy.sh dev"
     skip_cleanup: true
     on:
-      branch: develop
+      branch: newell/thumbnail_api_refactor
 

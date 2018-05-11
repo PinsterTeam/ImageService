@@ -5,13 +5,13 @@ const util = require('util');
 
 module.exports = class Notifier {
     constructor() {
-        
+
     }
 
     notify(event, callback) {
         console.log(util.inspect(event, {depth: 5}));
 
-        callback(null, "success");
+        callback(null, 'success');
         // request.post('http://example.com')
         //     .on('response').promise()
         //     .then(response => {

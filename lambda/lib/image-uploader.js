@@ -4,11 +4,19 @@ const FileWriter = require('./file-writer');
 const FileBuilder = require('./file-builder');
 const _ = require('lodash');
 const async = require('async');
+const util = require('util');
+const InternalServerError = require('./internal-server-error');
+const BadRequest = require('./bad-request');
+const Ok = require('./ok');
 
 module.exports = class ImageUploader {
-    constructor(fileBuilder, fileWriter) {
+    constructor(bucketName, fileBuilder, fileWriter) {
         this.FileBuilder = _.isUndefined(fileBuilder) ? new FileBuilder() : fileBuilder;
         this.FileWriter = _.isUndefined(fileWriter) ? new FileWriter() : fileWriter;
+        this.bucket = _.isUndefined(bucketName) ? process.env.BUCKET_NAME : bucketName;
+        if (this.bucket === null) {
+            throw new InternalServerError('Bucket undefined');
+        }
     }
 
     static parseRequest(event, callback) {
@@ -26,21 +34,20 @@ module.exports = class ImageUploader {
         }
 
         if (data === null || userId === null || metadata === null || year === null) {
-            let response = {
-                statusCode: 400,
-                body: JSON.stringify({
-                    error: "Bad Request. Required fields are missing.",
+            let response = new BadRequest(
+                {
+                    error: 'Bad Request. Required fields are missing.',
                     example_body: {
                         data: {
                             metadata: {
-                                user_id: "uuid",
-                                year: "integer year"
+                                user_id: 'uuid',
+                                year: 'integer year'
                             },
-                            image: "base64 encoded image"
+                            image: 'base64 encoded image'
                         }
                     }
-                })
-            };
+                });
+
             callback(response);
         }
         else {
@@ -53,42 +60,31 @@ module.exports = class ImageUploader {
 
     perform(event, callback) {
         let tasks = [];
+
         tasks.push((callback) => {
             ImageUploader.parseRequest(event, callback);
         });
+
         tasks.push((parsedRequest, callback) => {
-            if (_.isObject(parsedRequest) &&
-                _.isNumber(parsedRequest.statusCode) &&
-                parsedRequest.statusCode === 400) {
-                callback("The parsed request contained an error");
-            }
-            else {
-                let imageFile = this.FileBuilder.getFile(parsedRequest.image);
-                imageFile.Bucket = process.env.BUCKET_NAME;
-                imageFile.Metadata = parsedRequest.metadata;
-                callback(undefined, imageFile);
-            }
+            let imageFile = this.FileBuilder.getFile(parsedRequest.image);
+            imageFile.Bucket = this.bucket;
+            imageFile.Metadata = parsedRequest.metadata;
+            callback(undefined, imageFile);
         });
+
         tasks.push((imageFile, callback) => {
-            this.FileWriter.saveObject(imageFile, (err, data) => {
-                callback(err, imageFile, data);
-            });
+            this.FileWriter.saveObject(imageFile, callback);
         });
+
         async.waterfall(tasks, (err, data) => {
-            if (err) {
-                callback(err);
+            console.log('Finished. Resolving response body');
+            if(err) {
+                console.log(util.inspect(err, {depth: 5}));
+            } else {
+                console.log(util.inspect(data, {depth: 5}));
             }
-            else {
-                let response = {
-                    statusCode: 200,
-                    body: JSON.stringify({
-                        bucket: data[0].Bucket,
-                        key: data[0].Key,
-                        message: data[1]
-                    })
-                };
-                callback(undefined, response);
-            }
+
+            err === null ? err.build(callback) : data.build(callback);
         });
     }
 };

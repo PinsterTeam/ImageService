@@ -27,11 +27,11 @@ module.exports = class Moderator {
 
         this.rekognition.detectModerationLabels(params).promise()
             .then(result => {
-                console.log("The rekognition result:", util.inspect(result, {depth: 5}));
-                if(result.ModerationLabels.length > 0) {
+                console.log('The rekognition result:', util.inspect(result, {depth: 5}));
+                if (result.ModerationLabels.length > 0) {
                     callback(new ModerationThresholdExceeded(result));
                 }
-               callback(null, event);
+                callback(null, event);
             })
             .catch(err => callback(err));
     }

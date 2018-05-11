@@ -2,6 +2,9 @@
 
 const stepfunctions = require('aws-sdk/clients/stepfunctions');
 const _ = require('lodash');
+const util = require('util');
+const InternalServerError = require('./internal-server-error');
+const Ok = require('./ok');
 
 module.exports = class StepFunctions {
     constructor(stepFunc) {
@@ -9,7 +12,7 @@ module.exports = class StepFunctions {
     }
 
     startExecution(event, callback) {
-        console.log('startExecution');
+        console.log(util.inspect(event, {depth: 5}));
 
         let s3Event = event.Records[0].s3.object;
         let s3BucketName = event.Records[0].s3.bucket.name;
@@ -20,38 +23,23 @@ module.exports = class StepFunctions {
         let width = 100;
 
         let resizeParams = {Bucket: s3BucketName, Key: s3Event.key, height: height, width: width};
-        console.log(resizeParams);
 
-        this.callStepFunction(resizeParams).then(result => {
-            if (!result) {
-                callback("Failed to execute step function");
+        this.callStepFunction(resizeParams, (err) => {
+            if (err) {
+                new InternalServerError(err).build(callback);
             }
-
-            const response = {
-                statusCode: 200,
-                body: JSON.stringify({message: 'Step function is executing'})
-            };
-
-            console.log(response);
-
-            callback(null, response);
+            else {
+                new Ok('Step function is executing').build(callback);
+            }
         });
     }
 
-    callStepFunction(resizeParams) {
-        console.log('callStepFunction');
-
+    callStepFunction(resizeParams, callback) {
         let params = {
             stateMachineArn: process.env.STATEMACHINE_ARN,
             input: JSON.stringify(resizeParams)
         };
 
-        console.log('Start execution');
-        return stepfunctions.startExecution(params).promise().then(() => {
-            return true;
-        }).catch(error => {
-            console.log(error);
-            return false;
-        });
+        this.stepFunctions.startExecution(params, callback);
     }
 };
