@@ -16,14 +16,16 @@ module.exports = class ImageTransformer {
             callback(new InternalServerError('One of the required image transform parameters was null!'));
         }
         else {
-            parsedParameters.buffer = Sharp(body)
+            Sharp(body)
                 .resize(width, height)
                 .max()
                 .toFormat(format)
                 .toBuffer()
-                .resolve();
-
-            callback(undefined, parsedParameters);
+                .then(data => {
+                    parsedParameters.buffer = data;
+                    callback(undefined, parsedParameters);
+                })
+                .catch(err => new InternalServerError(err));
         }
     }
 };
