@@ -11,7 +11,7 @@ const ImageTransformer = require('./image-transformer');
 
 const MAX_AGE = 86400; // 24 hours
 const MAX_SIZE = 5000; // 5 thousand pixels (wide or high)
-const IMAGE_KEY_PATTERN_REGEX = /(([/a-zA-Z0-9]+)\/([a-zA-Z0-9]+))_((\d+|auto)x(\d+|auto))(\.jpeg|\.jpg|\.png)/;
+const IMAGE_KEY_PATTERN_REGEX = /(([/a-zA-Z0-9]+)\/([a-zA-Z0-9]+))_((\d+|auto)x(\d+|auto))(\.jpeg|\.jpg|\.png)?/;
 
 module.exports = class ThumbnailGenerator {
     constructor(bucket, url, s3, imageTransformer, allowedDimensions) {
@@ -33,7 +33,7 @@ module.exports = class ThumbnailGenerator {
             const width = match[5] === 'auto' ? null : Math.min(parseInt(match[5], 10), MAX_SIZE);
             const height = match[6] === 'auto' ? null : Math.min(parseInt(match[6], 10), MAX_SIZE);
             const dotExtension = match[7];
-            const originalKey = match[1] + dotExtension;
+            const originalKey = match[1];
             const newKey = match[0]; //whatever they requested is what we'll make
 
             console.log('Dimensions ' + dimensions);

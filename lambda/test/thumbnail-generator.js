@@ -7,7 +7,7 @@ const ThumbnailGenerator = require('../lib/thumbnail-generator');
 
 const MockEvent = {
     queryStringParameters: {
-        key: 'bob/key_400x200.jpg'
+        key: 'bob/key_400x200'
     }
 };
 const MockS3 = class MockS3 {
