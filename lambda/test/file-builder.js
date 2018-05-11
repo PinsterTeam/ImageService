@@ -13,7 +13,8 @@ describe('FileBuilder', function () {
         let file = fileBuilder.getFile(base64ImageMetadata + base64Image);
         let mockFile = {
             Key: 'raw/' + imageMD5,
-            Body: Buffer.from(base64Image, 'base64')
+            Body: Buffer.from(base64Image, 'base64'),
+            ContentType: 'image/png'
         };
         expect(file).to.deep.equal(mockFile);
     });

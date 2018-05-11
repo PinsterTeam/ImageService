@@ -12,10 +12,12 @@ module.exports = class FileBuilder {
     getFile(image) {
         let base64Handler = new this.base64Handler(image);
         let buffer = base64Handler.buffer;
+        let mimeType = base64Handler.mimeType;
         let fileName = 'raw/' + md5(buffer);
         return {
             Key: fileName,
-            Body: buffer
+            Body: buffer,
+            ContentType: `${mimeType.type}/${mimeType.subtype}`
         };
     }
 };

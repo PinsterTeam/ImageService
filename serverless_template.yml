@@ -15,8 +15,7 @@ provider:
       - .circleci/
       - lambda/test
       - node_modules
-      - *.md
-
+      - "*.md"
 
   iamRoleStatements:
     - Effect: "Allow"
