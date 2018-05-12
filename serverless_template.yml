@@ -58,7 +58,7 @@ custom:
   # https://github.com/serverless/serverless/issues/2486
   # https://github.com/serverless/serverless/issues/2749
   imageUploaderBucket: pinster-image-service
-
+  thumbnailProcessorName: thumbnail-processor-${self:provider.stage}
 
 functions:
   imageUploader:
@@ -82,7 +82,7 @@ functions:
             - prefix: raw/
     memorySize: 128
     environment:
-      STATEMACHINE_ARN: ${self:resources.Outputs.ThumbnailProcessor.Value}
+      STATEMACHINE_ARN: "arn:aws:states:#{AWS::Region}:#{AWS::AccountId}:stateMachine:${self:custom.thumbnailProcessorName}"
 
   generateThumbnail:
     handler: lambda/lambda.generateThumbnail
@@ -112,7 +112,7 @@ functions:
 stepFunctions:
   stateMachines:
     thumbnailProcessor:
-      name: thumbnailProcessor-${self:provider.stage}
+      name: ${self:custom.thumbnailProcessorName}
       definition:
         Comment: "StateMachine that turns raw images into thumbnails"
         StartAt: Moderate
@@ -170,12 +170,6 @@ resources:
               Effect: Allow
               Sid: "AddPerm"
               Resource: arn:aws:s3:::${self:custom.imageUploaderBucket}/*
-
-  Outputs:
-    ThumbnailProcessor:
-      Description: The ARN of the ThumbnailProcessor state machine
-      Value:
-        Ref: ThumbnailProcessor
 
 plugins:
   - serverless-step-functions
