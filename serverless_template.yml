@@ -59,6 +59,7 @@ custom:
   # https://github.com/serverless/serverless/issues/2749
   imageUploaderBucket: pinster-image-service
   thumbnailProcessorName: thumbnail-processor-${self:provider.stage}
+  pinsterApiUrl: http://api-${self:provider.stage}.pinster.info
 
 functions:
   imageUploader:
@@ -100,14 +101,17 @@ functions:
     handler: lambda/lambda.moderate
     memorySize: 128
 
-
   notifySuccess:
-    handler: lambda/integrator.notifySuccess
+    handler: lambda/notifier.notifySuccess
     memorySize: 128
+    environment:
+      PINSTER_API_URL: ${self:custom.pinsterApiUrl}
 
   notifyFailure:
-    handler: lambda/integrator.notifyFailure
+    handler: lambda/notifier.notifyFailure
     memorySize: 128
+    environment:
+      PINSTER_API_URL: ${self:custom.pinsterApiUrl}
 
 stepFunctions:
   stateMachines:
