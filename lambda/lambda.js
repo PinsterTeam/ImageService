@@ -24,7 +24,12 @@ module.exports.moderate = (event, context, callback) => {
     moderator.moderate(event, callback);
 };
 
-module.exports.notify = (event, context, callback) => {
+module.exports.notifySuccess = (event, context, callback) => {
     let notifier = new Notifier();
-    notifier.notify(event, callback);
+    notifier.notifySuccess(event, callback);
+};
+
+module.exports.notifyFailure = (event, context, callback) => {
+    let notifier = new Notifier();
+    notifier.notifyFailure(event, callback);
 };

@@ -1,24 +1,21 @@
 'use strict';
 
+const _ = require('lodash');
 const util = require('util');
-// const request = require('request');
+const PinsterApiClient = require('./pinsterApiClient');
 
 module.exports = class Notifier {
-    constructor() {
-
+    constructor(pinsterApiClient) {
+        this.api_client = _.isUndefined(pinsterApiClient) ? new PinsterApiClient : pinsterApiClient;
     }
 
-    notify(event, callback) {
+    notifySuccess(event, callback) {
         console.log(util.inspect(event, {depth: 5}));
+        this.api_client.createImage(event.body, callback);
+    }
 
-        callback(null, 'success');
-        // request.post('http://example.com')
-        //     .on('response').promise()
-        //     .then(response => {
-        //         console.log("Response:\n", util.inspect(response, {depth: 5}));
-        //         callback(null, JSON.parse(response))
-        //     })
-        //     .on('error').promise()
-        //     .then(err => callback(err));
+    notifyFailure(event, callback) {
+        console.log(util.inspect(event, {depth: 5}));
+        this.api_client.createFailureNotification(event.body, callback);
     }
 };
