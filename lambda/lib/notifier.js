@@ -9,13 +9,13 @@ module.exports = class Notifier {
         this.api_client = _.isUndefined(pinsterApiClient) ? new PinsterApiClient : pinsterApiClient;
     }
 
-    notifySuccess(event, callback) {
-        console.log(util.inspect(event, {depth: 5}));
-        this.api_client.createImage(event.body, callback);
+    notifySuccess(imageParams, callback) {
+        console.log(util.inspect(imageParams, {depth: 5}));
+        this.api_client.createImage(imageParams, callback);
     }
 
-    notifyFailure(event, callback) {
-        console.log(util.inspect(event, {depth: 5}));
-        this.api_client.createFailureNotification(event.body, callback);
+    notifyFailure(notificationParams, callback) {
+        console.log(util.inspect(notificationParams, {depth: 5}));
+        this.api_client.createFailureNotification(notificationParams, callback);
     }
 };
