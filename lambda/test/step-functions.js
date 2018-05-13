@@ -59,12 +59,12 @@ describe('StepFunctions', function () {
                 console.log(util.inspect(err, {depth: 5}));
             }
 
-            expect(err).to.equal(undefined);
-            expect(data).to.deep.equal({
+            expect(err).to.equal(null);
+            expect(data).to.deep.equal([{
                 statusCode: 200,
                 body: JSON.stringify('Step function is executing'),
                 headers: {}
-            });
+            }]);
         });
     });
 });

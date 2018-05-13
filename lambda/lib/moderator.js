@@ -16,8 +16,8 @@ module.exports = class Moderator {
         let params = {
             Image: {
                 S3Object: {
-                    Bucket: event.Bucket,
-                    Name: event.Key
+                    Bucket: event.bucket,
+                    Name: event.key
                 }
             },
             MinConfidence: 0.0
@@ -31,7 +31,7 @@ module.exports = class Moderator {
                 if (result.ModerationLabels.length > 0) {
                     callback(new ModerationThresholdExceeded(result));
                 }
-                callback(null, event);
+                callback(undefined, event);
             })
             .catch(err => callback(err));
     }
