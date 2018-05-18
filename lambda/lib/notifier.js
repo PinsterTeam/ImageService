@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const util = require('util');
-const PinsterApiClient = require('./pinsterApiClient');
+const PinsterApiClient = require('./pinster-api-client');
 
 module.exports = class Notifier {
     constructor(pinsterApiClient) {
