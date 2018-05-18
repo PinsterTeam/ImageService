@@ -18,6 +18,11 @@ provider:
       - "*.md"
 
   iamRoleStatements:
+    - Effect: 'Allow'
+      Action:
+        - "sns:Publish"
+      Resource:
+        - "${self:custom.failure_notification_sns_arn}"
     - Effect: "Allow"
       Action:
         - "s3:*"
@@ -47,10 +52,20 @@ custom:
     dev: dev
     prod: prod
   customDomain:
-    domainName: image-service.api-${self:provider.stage}.pinster.info
+    domainName: image-service-${self:provider.stage}.pinster.io
     basePath: ''
     stage: ${self:provider.stage}
     createRoute53Record: true
+  failure_notification_sns: ImageServiceFailureSNS
+  failure_notification_sns_arn:
+    Fn::Join:
+      - ":"
+      - - arn
+        - aws
+        - sns
+        - Ref: AWS::Region
+        - Ref: AWS::AccountId
+        - ${self:custom.failure_notification_sns}
   imageBucketUrl: http://pinster-image-service-${self:provider.stage}.s3-website-#{AWS::Region}.amazonaws.com
 
   # if the bucket name is changed then you must go to the resources section and change it there too!
@@ -59,7 +74,7 @@ custom:
   # https://github.com/serverless/serverless/issues/2749
   imageUploaderBucket: pinster-image-service
   thumbnailProcessorName: thumbnail-processor-${self:provider.stage}
-  pinsterApiUrl: http://api-${self:provider.stage}.pinster.info
+  pinsterApiUrl: http://api-${self:provider.stage}.pinster.io
 
 functions:
   imageUploader:
@@ -174,7 +189,10 @@ resources:
               Effect: Allow
               Sid: "AddPerm"
               Resource: arn:aws:s3:::${self:custom.imageUploaderBucket}/*
-
+    ImageServiceFailureSNS:
+      Type: "AWS::SNS::Topic"
+      Properties:
+        TopicName: "${self:custom.failure_notification_sns}"
 plugins:
   - serverless-step-functions
   - serverless-pseudo-parameters
