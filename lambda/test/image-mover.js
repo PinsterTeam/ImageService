@@ -6,46 +6,62 @@ const util = require('util');
 const ImageMover = require('../lib/image-mover');
 
 const MockEvent = {
-    queryStringParameters: {
-        key: 'bob/key_400x200'
-    }
+    Bucket: "pinster-image-service-dev",
+    Key: "raw/926dc1235cb657e5c9d0e7dcfab84d78"
 };
 
 const MockS3 = class MockS3 {
-    getObject(s3Object, callback) {
-        callback(undefined, {Body: new Buffer([1, 2, 3, 4])});
+    constructor(callDeleteAfterCopy) {
+        this.callDeleteAfterCopy = callDeleteAfterCopy;
     }
 
-    putObject(s3Object, callback) {
-        callback();
+    copyObject(event, callback) {
+        if (this.callDeleteAfterCopy) {
+            callback(undefined, this.deleteObject(event, callback));
+        } else {
+            callback(undefined, 'yay');
+        }
+    }
+
+    deleteObject(s3Object, callback) {
+        callback(undefined, 'super duper');
     }
 };
 
+const ExpectedResponse = {
+    statusCode: 301,
+    headers:
+        {
+            location: 'http://image-service-prod.pinster.io/bob/key_400x200',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            Pragma: 'no-cache',
+            Expires: '0'
+        },
+    body: JSON.stringify('')
+};
 
 describe('Image Mover', function () {
     it('Copies the image successfully', function () {
-        let thumbnailGenerator = new ThumbnailGenerator('bucket', 'http://image-service-prod.pinster.io',
-            new MockS3(), new MockImageTransformer());
-        thumbnailGenerator.generate(MockEvent, (err, data) => {
+        let imageMover = new ImageMover('', 'bucket', new MockS3(false));
+        imageMover.moveImage(MockEvent, (err, data) => {
             console.log(util.inspect(err, {depth: 5}));
 
             expect(err).to.equal(undefined);
             console.log(util.inspect(data, {depth: 5}));
 
-            expect(data).to.deep.equal(ExpectedResponse);
+            expect(data).to.deep.equal('yay');
         });
     });
 
     it('Deletes the original after copying', function () {
-        let thumbnailGenerator = new ThumbnailGenerator('bucket', 'http://image-service-prod.pinster.io',
-            new MockS3(), new MockImageTransformer());
-        thumbnailGenerator.generate(MockEventTwo, (err, data) => {
+        let imageMover = new ImageMover('', 'bucket', new MockS3(true));
+        imageMover.moveImage(MockEvent, (err, data) => {
             console.log(util.inspect(err, {depth: 5}));
 
             expect(err).to.equal(undefined);
             console.log(util.inspect(data, {depth: 5}));
 
-            expect(data).to.deep.equal(ExpectedResponseTwo);
+            expect(data).to.deep.equal('super duper');
         });
     });
 });
