@@ -2,8 +2,6 @@
 
 const AWSS3 = require('aws-sdk/clients/s3');
 const _ = require('lodash');
-const InternalServerError = require('./internal-server-error');
-const Ok = require('./ok');
 const path = require('path');
 
 module.exports = class ImageMover {
@@ -15,8 +13,8 @@ module.exports = class ImageMover {
 
     moveImage(event, callback) {
         const params = {
-            CopySource: path.join(event.bucket, event.key),
-            Key: path.join(this.newPrefix, path.basename(event.key))
+            CopySource: path.join(event.Bucket, event.Key),
+            Key: path.join(this.newPrefix, path.basename(event.Key))
         };
 
         this.s3.copyObject(params, (err) => {

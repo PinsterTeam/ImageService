@@ -28,18 +28,6 @@ const MockS3 = class MockS3 {
     }
 };
 
-const ExpectedResponse = {
-    statusCode: 301,
-    headers:
-        {
-            location: 'http://image-service-prod.pinster.io/bob/key_400x200',
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            Pragma: 'no-cache',
-            Expires: '0'
-        },
-    body: JSON.stringify('')
-};
-
 describe('Image Mover', function () {
     it('Copies the image successfully', function () {
         let imageMover = new ImageMover('', 'bucket', new MockS3(false));
