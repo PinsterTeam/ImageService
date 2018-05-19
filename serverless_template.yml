@@ -77,7 +77,7 @@ custom:
   # https://github.com/serverless/serverless/issues/2749
   imageUploaderBucket: pinster-image-service
   thumbnailProcessorName: thumbnail-processor-${self:provider.stage}
-  pinsterApiUrl: http://api-${self:provider.stage}.pinster.io
+  pinsterApiUrl: https://api-${self:provider.stage}.pinster.io
 
 functions:
   imageUploader:
