@@ -9,34 +9,34 @@ module.exports = class ImageMover {
         this.newPrefix = _.isUndefined(newPrefix) ? process.env.PREFIX : newPrefix;
         this.bucket = _.isUndefined(bucketName) ? process.env.BUCKET_NAME : bucketName;
         this.s3 = _.isUndefined(s3) ? new AWSS3() : s3;
+        console.log(this.s3.callDeleteAfterCopy);
     }
 
     moveImage(event, callback) {
-        const params = {
+        const copyObjectParams = {
             CopySource: path.join(event.Bucket, event.Key),
             Key: path.join(this.newPrefix, path.basename(event.Key))
         };
 
-        this.s3.copyObject(params, (err) => {
+        this.s3.copyObject(copyObjectParams, (err) => {
             if (err) {
                 console.log(err);
                 callback(err);
             }
             else {
-                console.log(`Copy success for: ${params.CopySource} to: ${params.Key}. Deleting original now.`);
-                this.delete(event, callback);
+                console.log(`Copy success for: ${copyObjectParams.CopySource} to: ${copyObjectParams.Key}. Deleting original now.`);
+                this.s3.deleteObject(event, (err) => {
+                    if (err) {
+                        console.log(err);
+                        callback(err);
+                    } else {
+                        callback(undefined, 'Delete Success!');
+                    }
+                })
             }
         });
     }
 
     delete(s3Object, callback) {
-        this.s3.deleteObject(s3Object, (err) => {
-            if(err) {
-                console.log(err);
-                callback(err);
-            } else {
-                callback(undefined, 'Delete Success!');
-            }
-        })
     }
 };
