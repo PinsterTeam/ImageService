@@ -119,6 +119,13 @@ functions:
     handler: lambda/lambda.moderate
     memorySize: 128
 
+  moveImage:
+    handler: lambda/lambda.moveImage
+    memorySize: 128
+    environment:
+        BUCKET: ${self:custom.imageUploaderBucket}
+        PATH: ""
+
   notifySuccess:
     handler: lambda/lambda.notifySuccess
     memorySize: 128
@@ -143,11 +150,15 @@ stepFunctions:
           Moderate:
             Type: Task
             Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${opt:stage}-moderate"
-            Next: NotifySuccess
+            Next: MoveImage
             Catch:
             - ErrorEquals:
               - ModerationThresholdExceeded
               Next: NotifyFailure
+          MoveImage:
+            Type: Task
+            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${opt:stage}-moveImage"
+            Next: NotifySuccess
           NotifySuccess:
             Type: Task
             Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${opt:stage}-notifySuccess"
