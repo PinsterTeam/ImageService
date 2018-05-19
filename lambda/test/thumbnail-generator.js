@@ -12,16 +12,23 @@ const MockEvent = {
 };
 
 const MockEventTwo = {
-    queryStringParameters: {
-        key: 'key_400x200'
-    }
+    "bucket": "pinster-image-service-dev",
+    "key": "raw/926dc1235cb657e5c9d0e7dcfab84d78"
 };
+
 const MockS3 = class MockS3 {
-    getObject(s3Object, callback) {
-        callback(undefined, {Body: new Buffer([1, 2, 3, 4])});
+    constructor(shouldDelete) {
+        this.shouldDelete = shouldDelete;
     }
 
-    putObject(s3Object, callback) {
+    copyObject(s3Object, callback) {
+        if(shouldDelete){
+
+        }
+        callback(undefined, callback);
+    }
+
+    deleteObject(s3Object, callback) {
         callback();
     }
 };

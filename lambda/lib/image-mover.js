@@ -26,7 +26,7 @@ module.exports = class ImageMover {
             }
             else {
                 console.log(`Copy success for: ${params.CopySource} to: ${params.Key}. Deleting original now.`);
-                this.delete({Bucket: event.bucket, Key: event.key}, callback);
+                this.delete(event, callback);
             }
         });
     }

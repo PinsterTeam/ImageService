@@ -16,8 +16,8 @@ module.exports = class Moderator {
         const params = {
             Image: {
                 S3Object: {
-                    Bucket: event.bucket,
-                    Name: event.key
+                    Bucket: event.Bucket,
+                    Name: event.Key
                 }
             },
             MinConfidence: 0.0

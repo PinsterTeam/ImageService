@@ -19,7 +19,7 @@ module.exports = class StepFunctions {
             const s3Key = s3.object.key;
             const s3BucketName = s3.bucket.name;
 
-            this.callStepFunction({bucket: s3BucketName, key: s3Key}, (err) => {
+            this.callStepFunction({Bucket: s3BucketName, Key: s3Key}, (err) => {
                 if (err) {
                     console.log(util.inspect(err, {depth: 5}));
                     new InternalServerError(err).build(callback);
