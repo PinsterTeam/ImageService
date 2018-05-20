@@ -12,7 +12,6 @@ module.exports = class ImageMover {
     }
 
     moveImage(event, callback) {
-        console.log(util.inspect(event, {depth: 5}));
         const copyObjectParams = {
             CopySource: path.join(event.Bucket, event.Key),
             Key: path.join(this.newPrefix, path.basename(event.Key))
