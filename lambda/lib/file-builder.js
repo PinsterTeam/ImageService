@@ -11,11 +11,14 @@ module.exports = class FileBuilder {
     }
 
     getFile(parsedRequest, callback) {
-        let base64Handler = new this.base64Handler(parsedRequest.image);
-        let buffer = base64Handler.buffer;
-        let mimeType = base64Handler.mimeType;
-        let fileName = 'raw/' + md5(buffer);
-        let contentType = `${mimeType.type}/${mimeType.subtype}`;
+        const base64Handler = new this.base64Handler(parsedRequest.image);
+        const buffer = base64Handler.buffer;
+        const mimeType = base64Handler.mimeType;
+        const baseFileName =  md5(buffer);
+        const fileName = 'raw/' + baseFileName;
+        const contentType = `${mimeType.type}/${mimeType.subtype}`;
+
+        parsedRequest.metadata['base_file_name'] = baseFileName;
 
         if (mimeType.type === 'image') {
             callback(undefined, {

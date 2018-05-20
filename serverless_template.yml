@@ -123,6 +123,7 @@ functions:
     environment:
         BUCKET: ${self:custom.imageUploaderBucket}
         PREFIX: ""
+        URL: ${self:custom.imageBucketUrl}
 
   notifySuccess:
     handler: lambda/lambda.notifySuccess

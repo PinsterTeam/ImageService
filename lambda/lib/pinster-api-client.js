@@ -5,17 +5,18 @@ const util = require('util');
 const request = require('request');
 
 module.exports = class PinsterApiClient {
-    constructor(baseUrl, authToken) {
-        this.baseUrl = _.isUndefined(baseUrl) ? process.env.PINSTER_API_URL : baseUrl;
+    constructor(pinsterUrl, authToken) {
+        this.pinsterUrl = _.isUndefined(pinsterUrl) ? process.env.PINSTER_API_URL : pinsterUrl;
         this.authToken = _.isUndefined(authToken) ? process.env.AUTH_TOKEN : authToken;
     }
 
     createImage(imageParameters, callback) {
         if (_.isUndefined(this.authToken)) {
             callback('Secret fetching failed!');
-        } else {
+        }
+        else {
             request.post({
-                url: `${this.baseUrl}/v1/images`,
+                url: `${this.pinsterUrl}/v1/images`,
                 headers: {
                     'Authorization': this.authToken
                 }
@@ -27,7 +28,12 @@ module.exports = class PinsterApiClient {
                 else {
                     console.log(util.inspect(response, {depth: 5}));
                     console.log(util.inspect(body, {depth: 5}));
-                    callback(undefined, response, body);
+                    if (response.statusCode !== 200) {
+                        callback(`Api called due to non 200 status. ${response}, ${body}`);
+                    }
+                    else {
+                        callback(undefined, response, body);
+                    }
                 }
             });
         }
@@ -35,7 +41,7 @@ module.exports = class PinsterApiClient {
 
     createFailureNotification(notificationParameters, callback) {
         request.post({
-            url: `${this.baseUrl}/v1/notifications/failure`,
+            url: `${this.pinsterUrl}/v1/notifications/failure`,
             headers: {
                 'Authorization': this.authToken
             }
