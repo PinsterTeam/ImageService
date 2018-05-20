@@ -20,9 +20,10 @@ module.exports = class PinsterApiClient {
                 method: 'POST',
                 uri: `${this.pinsterUrl}/v1/images`,
                 headers: {
-                    'Authorization': 'Bearer ' + this.authToken
+                    'Authorization': 'Bearer ' + this.authToken,
+                    'content-type': 'application/json'
                 },
-                body: imageParameters
+                body: JSON.stringify(imageParameters)
             };
             console.log(util.inspect(requestParams, {depth: 5}));
 
