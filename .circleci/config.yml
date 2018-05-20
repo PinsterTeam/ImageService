@@ -97,7 +97,7 @@ workflows:
             branches:
               only:
                 - develop
-                - newell/serverless_secrets
+                - newell/wtfbbq
       - deploy-prod:
           requires:
             - test
