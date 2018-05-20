@@ -15,12 +15,18 @@ module.exports = class PinsterApiClient {
             callback('Secret fetching failed!');
         }
         else {
-            request.post({
-                url: `${this.pinsterUrl}/v1/images`,
+
+            const requestParams = {
+                method: 'POST',
+                uri: `${this.pinsterUrl}/v1/images`,
                 headers: {
-                    'Authorization': this.authToken
-                }
-            }, imageParameters, (err, response, body) => {
+                    'Authorization': 'Bearer ' + this.authToken
+                },
+                body: imageParameters
+            };
+            console.log(util.inspect(requestParams, {depth: 5}));
+
+            request(requestParams, (err, response, body) => {
                 if (err) {
                     console.log(util.inspect(err, {depth: 5}));
                     callback(err);

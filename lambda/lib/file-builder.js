@@ -4,6 +4,7 @@ const Base64Handler = require('./base64-handler');
 const _ = require('lodash');
 const md5 = require('md5');
 const BadRequest = require('./bad-request');
+const util = require('util');
 
 module.exports = class FileBuilder {
     constructor(base64Handler) {
@@ -19,6 +20,7 @@ module.exports = class FileBuilder {
         const contentType = `${mimeType.type}/${mimeType.subtype}`;
 
         parsedRequest.metadata['base_file_name'] = baseFileName;
+        console.log(util.inspect(parsedRequest, {depth: 5}));
 
         if (mimeType.type === 'image') {
             callback(undefined, {

@@ -87,23 +87,13 @@ module.exports = class ImageMover {
     parseMetadataIntoPostBody(metadata) {
         return {
             'data': {
-                'imageable_id': ImageMover.getValue('imageable_id', metadata),
-                'imageable_type': ImageMover.capitalizeFirstLetter(ImageMover.getValue('imageable_type', metadata)),
-                'base_file_name': ImageMover.getValue('base_file_name', metadata),
-                'storage_location_uri': this.imageBucketUrl + '/' + ImageMover.getValue('base_file_name', metadata),
+                'imageable_id': metadata['imageable_id'],
+                'imageable_type': metadata['imageable_type'],
+                'base_file_name': metadata['base_file_name'],
+                'storage_location_uri': this.imageBucketUrl + '/' +  metadata['base_file_name'],
                 'thumbnailable': true
             }
 
         };
     }
-
-    static getValue(key, metadata) {
-        return metadata['x-amz-meta-' + key];
-    }
-
-    static capitalizeFirstLetter(string) {
-        return string.charAt(0).toUpperCase() + string.slice(1);
-    }
-
-
 };

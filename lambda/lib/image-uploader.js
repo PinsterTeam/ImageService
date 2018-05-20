@@ -55,7 +55,6 @@ module.exports = class ImageUploader {
                         }
                     }
                 });
-
             callback(response);
         }
         else {

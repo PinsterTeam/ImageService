@@ -119,7 +119,7 @@ functions:
 
   moveImage:
     handler: lambda/lambda.moveImage
-    memorySize: 128
+    memorySize: 512
     environment:
         BUCKET: ${self:custom.imageUploaderBucket}
         PREFIX: ""
