@@ -124,7 +124,7 @@ functions:
     memorySize: 128
     environment:
         BUCKET: ${self:custom.imageUploaderBucket}
-        PATH: ""
+        PREFIX: ""
 
   notifySuccess:
     handler: lambda/lambda.notifySuccess
