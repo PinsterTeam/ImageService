@@ -85,6 +85,7 @@ workflows:
             branches:
               only:
                 - develop
+                - newell/image_mover_v2
 
       - deploy-prod:
           requires:
