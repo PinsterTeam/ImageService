@@ -68,7 +68,11 @@ module.exports = class ImageMover {
     }
 
     buildParamsForNextStep(copyObjectParams, callback) {
-        this.s3.headObject(copyObjectParams, (err, data) => {
+        const headParams = {
+            Bucket: copyObjectParams.Bucket,
+            Key: copyObjectParams.Key
+        };
+        this.s3.headObject(headParams, (err, data) => {
             if (err) {
                 console.log(err);
                 callback(err);
