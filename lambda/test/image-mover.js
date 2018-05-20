@@ -20,6 +20,7 @@ class MockS3 {
     copyObject(copyObjectParams, callback) {
         if (this.callDeleteAfterCopy) {
             expect(copyObjectParams).to.deep.equal({
+                Bucket: 'bucket',
                 CopySource: path.join(MockEvent.Bucket, MockEvent.Key),
                 Key: path.join(this.newPrefix, path.basename(MockEvent.Key))
             });
