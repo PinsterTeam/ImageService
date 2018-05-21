@@ -97,7 +97,6 @@ workflows:
             branches:
               only:
                 - develop
-                - newell/wtfbbq
       - deploy-prod:
           requires:
             - test
