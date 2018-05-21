@@ -11,7 +11,8 @@ const goodPayload = {
             user_id: 'uuid',
             year: 'integer year',
             imageable_type: 'imageable_type',
-            imageable_id: 'imageable_id'
+            imageable_id: 'imageable_id',
+            'cache-control': 'max-age=186400'
         },
         image: 'base64 encoded image'
     }
