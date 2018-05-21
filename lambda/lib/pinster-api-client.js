@@ -36,10 +36,10 @@ module.exports = class PinsterApiClient {
                     console.log(util.inspect(response, {depth: 5}));
                     console.log(util.inspect(body, {depth: 5}));
                     if (response.statusCode >= 200 && response.statusCode < 400) {
-                        callback(`Api call failed due to non good status. ${response}, ${body}`);
+                        callback(undefined, response, body);
                     }
                     else {
-                        callback(undefined, response, body);
+                        callback(`Api call failed due to non good status. ${response}, ${body}`);
                     }
                 }
             });
