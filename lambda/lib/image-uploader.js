@@ -26,20 +26,17 @@ module.exports = class ImageUploader {
         let image = data.image;
         let metadata = data.metadata;
         let bucket = this.bucket;
-        let year = null;
         let userId = null;
         let imageable_id = null;
         let imageable_type = null;
 
         if (metadata !== null && metadata !== undefined) {
-            year = metadata.year;
             userId = metadata.user_id;
             imageable_id = metadata.imageable_id;
             imageable_type = metadata.imageable_type;
         }
 
-        if (data === null || userId === null || metadata === null || year === null
-            || imageable_id === null || imageable_type === null) {
+        if (data === null || userId === null || metadata === null || imageable_id === null || imageable_type === null) {
             let response = new BadRequest(
                 {
                     error: 'Bad Request. Required fields are missing.',
@@ -47,7 +44,6 @@ module.exports = class ImageUploader {
                         data: {
                             metadata: {
                                 user_id: 'uuid',
-                                year: 'integer year',
                                 imageable_type: 'imageable_type',
                                 imageable_id: 'imageable_id'
                             },

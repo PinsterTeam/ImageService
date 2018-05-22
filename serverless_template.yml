@@ -83,7 +83,7 @@ functions:
     events:
       - http:
           method: post
-          path: images/upload
+          path: images
           cors: true
     memorySize: 1024
     environment:
