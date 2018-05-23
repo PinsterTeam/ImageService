@@ -95,6 +95,7 @@ workflows:
             branches:
               only:
                 - develop
+                - newell/cors_fuckery
       - deploy-prod:
           requires:
             - test
