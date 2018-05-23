@@ -14,7 +14,10 @@ describe('HttpResponseBuilder', function () {
         let responseBuilder = new HttpResponseBuilder(500, new StupidClass('arse'));
         expect(responseBuilder.generateResponse()).to.deep.equal({
             statusCode: 500,
-            headers: {},
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Credentials": true,
+            },
             body: JSON.stringify({'dumb': 'arse'})
         });
     });

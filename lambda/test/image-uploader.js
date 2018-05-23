@@ -73,7 +73,13 @@ describe('ImageUploader', function () {
         };
 
         let callback = (err) => {
-            expect(err).to.deep.equal({statusCode: 400, headers: {}, body: BadResponsePayload});
+            expect(err).to.deep.equal({
+                statusCode: 400, headers: {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Credentials": true,
+
+                }, body: BadResponsePayload
+            });
         };
 
         new ImageUploader('bucket').parseRequest(new eventFixture(), callback);
@@ -91,7 +97,12 @@ describe('ImageUploader', function () {
             }
 
             expect(err).to.equal(undefined);
-            expect(data).to.deep.equal({statusCode: 200, body: JSON.stringify('asdf'), headers: {}}
+            expect(data).to.deep.equal({
+                    statusCode: 200, body: JSON.stringify('asdf'), headers: {
+                        "Access-Control-Allow-Origin": "*",
+                        "Access-Control-Allow-Credentials": true,
+                    }
+                }
             );
         };
 
