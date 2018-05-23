@@ -52,7 +52,8 @@ const ExpectedResponse = {
 const ExpectedResponseTwo = {
     statusCode: 301,
     headers:
-        {            "Access-Control-Allow-Origin": "*",
+        {
+            "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Credentials": true,
             location: 'http://image-service-prod.pinster.io/key_400x200',
             'Cache-Control': 'no-cache, no-store, must-revalidate',
