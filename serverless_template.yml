@@ -52,12 +52,12 @@ provider:
 custom:
   logRetentionInDays: 14
   defaultStage: dev
-  customDomain:
-    domainName: ${self:custom.imageUploaderBucket}
-    basePath: ''
-    stage: ${self:provider.stage}
-    createRoute53Record: true
-    certificateName: image-service-dev.pinster.io
+#  customDomain:
+#    domainName: ${self:custom.imageUploaderBucket}
+#    basePath: ''
+#    stage: ${self:provider.stage}
+#    createRoute53Record: true
+#    certificateName: image-service-dev.pinster.io
   failure_notification_sns: ImageServiceFailureSNS${self:provider.stage}
   failure_notification_sns_arn:
     Fn::Join:
@@ -187,7 +187,7 @@ resources:
                 IndexDocument: index.html
                 RoutingRules:
                 - RedirectRule:
-                    HostName: ${self:custom.customDomain.domainName}
+                    HostName: "${self:custom.imageUploaderBucket}"
                     HttpRedirectCode: 307
                     Protocol: https
                     ReplaceKeyPrefixWith: images/generate?key=
@@ -208,7 +208,7 @@ resources:
     WebsiteCloudfront:
       Type: AWS::CloudFront::Distribution
       DependsOn:
-        - ${self:custom.imageUploaderBucket}
+        - S3BucketImageservice${self:provider.stage}pinsterio
       Properties:
         DistributionConfig:
           Aliases:
@@ -239,19 +239,19 @@ resources:
           ViewerCertificate:
             AcmCertificateArn: arn:aws:acm:us-east-1:582149114309:certificate/4527b2fc-14a6-417c-a35c-82f5426e516a
             SslSupportMethod: sni-only
-
-    WebsiteDNSName:
-      Type: AWS::Route53::RecordSetGroup
-      Properties:
-        HostedZoneName: pinster.io.
-        RecordSets:
-        - Name: "${self:custom.imageUploaderBucket}"
-          Type: CNAME
-          TTL: 900
-          ResourceRecords:
-            - Fn::GetAtt:
-              - WebsiteCloudfront
-              - DomainName
+#
+#    WebsiteDNSName:
+#      Type: AWS::Route53::RecordSetGroup
+#      Properties:
+#        HostedZoneName: pinster.io.
+#        RecordSets:
+#        - Name: "${self:custom.imageUploaderBucket}"
+#          Type: CNAME
+#          TTL: 900
+#          ResourceRecords:
+#            - Fn::GetAtt:
+#              - WebsiteCloudfront
+#              - DomainName
     ImageServiceFailureSNS:
       Type: "AWS::SNS::Topic"
       Properties:
@@ -259,5 +259,4 @@ resources:
 plugins:
   - serverless-step-functions
   - serverless-pseudo-parameters
-  - serverless-domain-manager
   - serverless-plugin-log-retention
