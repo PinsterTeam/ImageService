@@ -87,12 +87,11 @@ workflows:
   commit:
     jobs:
       - build
-      - test:
-          requires:
-            - build
+      - test
       - deploy-dev:
           requires:
             - test
+            - build
           filters:
             branches:
               only:
@@ -101,6 +100,7 @@ workflows:
       - deploy-prod:
           requires:
             - test
+            - build
           filters:
             branches:
               only:
