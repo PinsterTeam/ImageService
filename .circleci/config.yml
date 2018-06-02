@@ -52,9 +52,11 @@ jobs:
           name: Install deploy packages
           command: npm install
       - run:
+          name: Package
+          command: ruby serverless.rb package dev false
+      - run:
           name: Deploy
-          command: |
-            ruby serverless.rb deploy dev false
+          command: sls deploy --stage dev -v
 
   deploy-prod:
     <<: *defaults
@@ -74,9 +76,11 @@ jobs:
           name: Install deploy packages
           command: npm install
       - run:
+          name: Package
+          command: ruby serverless.rb package prod false
+      - run:
           name: Deploy
-          command: |
-            ruby serverless.rb deploy prod false
+          command: sls deploy --stage prod -v
 
 workflows:
   version: 2
