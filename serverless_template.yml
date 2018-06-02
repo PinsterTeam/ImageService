@@ -53,7 +53,7 @@ custom:
   logRetentionInDays: 14
   defaultStage: dev
   customDomain:
-    domainName: image-service-${self:provider.stage}.pinster.io
+    domainName: ${self:custom.imageUploaderBucket}
     basePath: ''
     stage: ${self:provider.stage}
     createRoute53Record: true
@@ -68,13 +68,13 @@ custom:
         - Ref: AWS::Region
         - Ref: AWS::AccountId
         - ${self:custom.failure_notification_sns}
-  imageBucketUrl: http://pinster-image-service-${self:provider.stage}.s3-website-#{AWS::Region}.amazonaws.com
 
   # if the bucket name is changed then you must go to the resources section and change it there too!
   # This is a stupid limitation of serverless
   # https://github.com/serverless/serverless/issues/2486
   # https://github.com/serverless/serverless/issues/2749
-  imageUploaderBucket: pinster-image-service
+  imageUploaderBucket: image-service-${self:provider.stage}.pinster.io
+  imageBucketUrl: https://${self:custom.imageUploaderBucket}
   thumbnailProcessorName: thumbnail-processor-${self:provider.stage}
   pinsterApiUrl: https://api-${self:provider.stage}.pinster.io
 
@@ -174,7 +174,7 @@ resources:
   # if the bucket name is changed then this resource name must be changed! This is a stupid limitation of serverless
   # https://github.com/serverless/serverless/issues/2486
   # https://github.com/serverless/serverless/issues/2749
-    S3BucketPinsterimageservice:
+    S3BucketImageservicepinsterio:
       Type: 'AWS::S3::Bucket'
       Properties:
         CorsConfiguration:
@@ -205,6 +205,53 @@ resources:
               Effect: Allow
               Sid: "AddPerm"
               Resource: arn:aws:s3:::${self:custom.imageUploaderBucket}/*
+    WebsiteCloudfront:
+      Type: AWS::CloudFront::Distribution
+      DependsOn:
+        - ${self:custom.imageUploaderBucket}
+      Properties:
+        DistributionConfig:
+          Aliases:
+            - ${self:custom.imageUploaderBucket}
+          Comment: Cloudfront Distribution pointing to S3 bucket
+          Origins:
+            - DomainName: "${self:custom.imageUploaderBucket}.s3.amazonaws.com"
+              Id: S3Origin
+              CustomOriginConfig:
+                HTTPPort: '80'
+                HTTPSPort: '443'
+                OriginProtocolPolicy: http-only
+          Enabled: true
+          HttpVersion: 'http2'
+          DefaultRootObject: index.html
+          DefaultCacheBehavior:
+            AllowedMethods:
+              - GET
+              - HEAD
+            Compress: true
+            TargetOriginId: S3Origin
+            ForwardedValues:
+              QueryString: true
+              Cookies:
+                Forward: none
+            ViewerProtocolPolicy: redirect-to-https
+          PriceClass: PriceClass_100
+          ViewerCertificate:
+            AcmCertificateArn: arn:aws:acm:us-east-1:582149114309:certificate/4527b2fc-14a6-417c-a35c-82f5426e516a
+            SslSupportMethod: sni-only
+
+    WebsiteDNSName:
+      Type: AWS::Route53::RecordSetGroup
+      Properties:
+        HostedZoneName: pinster.io.
+        RecordSets:
+        - Name: "${self:custom.imageUploaderBucket}"
+          Type: CNAME
+          TTL: 900
+          ResourceRecords:
+            - Fn::GetAtt:
+              - WebsiteCloudfront
+              - DomainName
     ImageServiceFailureSNS:
       Type: "AWS::SNS::Topic"
       Properties:

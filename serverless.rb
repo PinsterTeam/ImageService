@@ -57,13 +57,14 @@ supported_stages.each { |supported_stage| bucket_name.gsub!(/-?#{supported_stage
 
 # puts "Trimmed bucket name to not include stage suffix: #{bucket_name}"
 
-s3_name = 'S3Bucket' + bucket_name.gsub('-', '').capitalize
+s3_name = 'S3Bucket' + bucket_name.gsub('${self:provider.stage}', stage).gsub(/[-.]/, '').capitalize
+s3_name_no_env = 'S3Bucket' + bucket_name.gsub('${self:provider.stage}', '').gsub(/[-.]/, '').capitalize
 
-puts "Looking for resource name starting with: #{s3_name}"
+puts "Looking for resource name starting with: #{s3_name} or #{s3_name_no_env}"
 
 # puts "Looking through keys: #{serverless['resources']['Resources'].keys}"
 found_keys = serverless['resources']['Resources'].keys.select { |key| /#{s3_name}.*/.match(key) }
-
+found_keys += serverless['resources']['Resources'].keys.select { |key| /#{s3_name_no_env}.*/.match(key) }
 
 if found_keys.size > 1
   puts "\n\nFound more than one possible bucket name. Not sure what to do: #{found_keys}\n\n"
@@ -75,12 +76,12 @@ if found_keys.size < 1
   return
 end
 
-new_bucket_name = bucket_name + "-#{stage}"
+new_bucket_name = bucket_name.gsub('${self:provider.stage}', stage)
 
 puts "New bucket name: #{new_bucket_name}"
 serverless['custom']['imageUploaderBucket'] = new_bucket_name
 
-new_s3_name = 'S3Bucket' + bucket_name.gsub('-', '').capitalize + stage
+new_s3_name = 'S3Bucket' + bucket_name.gsub('${self:provider.stage}', stage).gsub(/[-.]/, '').capitalize
 
 puts "New s3 resource name: #{new_s3_name}"
 serverless['resources']['Resources'][new_s3_name] = serverless['resources']['Resources'].delete(found_keys.first)
