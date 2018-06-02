@@ -235,7 +235,7 @@ resources:
           TTL: 900
           ResourceRecords:
             - Fn::GetAtt:
-              - WebsiteCloudfront
+              - ImageHostCloudfront
               - DomainName
     ImageServiceFailureSNS:
       Type: "AWS::SNS::Topic"
