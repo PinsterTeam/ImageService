@@ -30,8 +30,9 @@ provider:
       Action:
         - "s3:*"
       Resource:
-        - "arn:aws:s3:::${self:custom.imageUploaderBucket}/*"
-
+        - "arn:aws:s3:::${self:custom.imageHostBucket}/*"
+        - "arn:aws:s3:::${self:custom.imageUploadBucket}/*"
+        
     - Effect: "Allow"
       Action:
         - "states:StartExecution"
@@ -48,12 +49,13 @@ provider:
       Action:
         - "lambda:InvokeFunction"
       Resource:
-        - "arn:aws:lambda:::${self:custom.imageUploaderBucket}/*"
+        - "arn:aws:lambda:::${self:custom.imageUploadBucket}/*"
+
 custom:
   logRetentionInDays: 14
   defaultStage: dev
 #  customDomain:
-#    domainName: ${self:custom.imageUploaderBucket}
+#    domainName: ${self:custom.imageHostBucket}
 #    basePath: ''
 #    stage: ${self:provider.stage}
 #    createRoute53Record: true
@@ -68,13 +70,9 @@ custom:
         - Ref: AWS::Region
         - Ref: AWS::AccountId
         - ${self:custom.failure_notification_sns}
-
-  # if the bucket name is changed then you must go to the resources section and change it there too!
-  # This is a stupid limitation of serverless
-  # https://github.com/serverless/serverless/issues/2486
-  # https://github.com/serverless/serverless/issues/2749
-  imageUploaderBucket: image-service-${self:provider.stage}.pinster.io
-  imageBucketUrl: https://${self:custom.imageUploaderBucket}
+  imageHostBucket: image-service-${self:provider.stage}.pinster.io
+  imageBucketUrl: https://${self:custom.imageHostBucket}
+  imageUploadBucket: image-service-upload-${self:provider.stage}.pinster.io
   thumbnailProcessorName: thumbnail-processor-${self:provider.stage}
   pinsterApiUrl: https://api-${self:provider.stage}.pinster.io
 
@@ -88,13 +86,13 @@ functions:
           cors: true
     memorySize: 1024
     environment:
-          BUCKET_NAME: ${self:custom.imageUploaderBucket}
+          BUCKET_NAME: ${self:custom.imageUploadBucket}
 
   startExecution:
     handler: lambda/lambda.startExecution
     events:
       - s3:
-          bucket: ${self:custom.imageUploaderBucket}
+          bucket: ${self:custom.imageUploadBucket}
           event: s3:ObjectCreated:*
           rules:
             - prefix: raw/
@@ -111,7 +109,7 @@ functions:
           cors: true
     memorySize: 1024
     environment:
-          BUCKET: ${self:custom.imageUploaderBucket}
+          BUCKET: ${self:custom.imageHostBucket}
           URL: ${self:custom.imageBucketUrl}
 
   moderate:
@@ -122,7 +120,7 @@ functions:
     handler: lambda/lambda.moveImage
     memorySize: 512
     environment:
-        BUCKET: ${self:custom.imageUploaderBucket}
+        BUCKET: ${self:custom.imageHostBucket}
         PREFIX: ""
         URL: ${self:custom.imageBucketUrl}
 
@@ -171,12 +169,11 @@ stepFunctions:
 
 resources:
   Resources:
-  # if the bucket name is changed then this resource name must be changed! This is a stupid limitation of serverless
-  # https://github.com/serverless/serverless/issues/2486
-  # https://github.com/serverless/serverless/issues/2749
-    S3BucketImageservicepinsterio:
+    ImageHostBucket:
       Type: 'AWS::S3::Bucket'
       Properties:
+        BucketName: ${self:custom.imageHostBucket}
+        AccessControl: PublicRead
         CorsConfiguration:
           CorsRules:
             - AllowedHeaders: ['*']
@@ -187,35 +184,23 @@ resources:
                 IndexDocument: index.html
                 RoutingRules:
                 - RedirectRule:
-                    HostName: "${self:custom.imageUploaderBucket}"
+                    HostName: "${self:custom.imageHostBucket}"
                     HttpRedirectCode: 307
                     Protocol: https
                     ReplaceKeyPrefixWith: images/generate?key=
                   RoutingRuleCondition:
                     HttpErrorCodeReturnedEquals: 404
-    S3BucketPermissions:
-      Type: AWS::S3::BucketPolicy
-      Properties:
-        Bucket: ${self:custom.imageUploaderBucket}
-        PolicyDocument:
-          Statement:
-            - Principal: "*"
-              Action:
-                - s3:GetObject
-              Effect: Allow
-              Sid: "AddPerm"
-              Resource: arn:aws:s3:::${self:custom.imageUploaderBucket}/*
-    WebsiteCloudfront:
+    ImageHostCloudfront:
       Type: AWS::CloudFront::Distribution
       DependsOn:
-        - S3BucketImageservice${self:provider.stage}pinsterio
+        - ImageHostBucket
       Properties:
         DistributionConfig:
           Aliases:
-            - ${self:custom.imageUploaderBucket}
+            - ${self:custom.imageHostBucket}
           Comment: Cloudfront Distribution pointing to S3 bucket
           Origins:
-            - DomainName: "${self:custom.imageUploaderBucket}.s3.amazonaws.com"
+            - DomainName: "${self:custom.imageHostBucket}.s3.amazonaws.com"
               Id: S3Origin
               CustomOriginConfig:
                 HTTPPort: '80'
@@ -239,19 +224,19 @@ resources:
           ViewerCertificate:
             AcmCertificateArn: arn:aws:acm:us-east-1:582149114309:certificate/4527b2fc-14a6-417c-a35c-82f5426e516a
             SslSupportMethod: sni-only
-#
-#    WebsiteDNSName:
-#      Type: AWS::Route53::RecordSetGroup
-#      Properties:
-#        HostedZoneName: pinster.io.
-#        RecordSets:
-#        - Name: "${self:custom.imageUploaderBucket}"
-#          Type: CNAME
-#          TTL: 900
-#          ResourceRecords:
-#            - Fn::GetAtt:
-#              - WebsiteCloudfront
-#              - DomainName
+
+    ImageHostDNSName:
+      Type: AWS::Route53::RecordSetGroup
+      Properties:
+        HostedZoneName: pinster.io.
+        RecordSets:
+        - Name: "${self:custom.imageHostBucket}"
+          Type: CNAME
+          TTL: 900
+          ResourceRecords:
+            - Fn::GetAtt:
+              - WebsiteCloudfront
+              - DomainName
     ImageServiceFailureSNS:
       Type: "AWS::SNS::Topic"
       Properties:
