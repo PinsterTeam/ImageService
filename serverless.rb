@@ -30,18 +30,14 @@ puts "\nBuilding serverless.yml from serverless_template.yml with correct bucket
 
 serverless_file = File.read('serverless_template.yml')
 
-if ['deploy', 'package'].include?(serverless_command)
-  puts "Doing what fucking serverless can't figure out. Getting secret for auth token"
+puts "Doing what fucking serverless can't figure out. Getting secret for auth token"
 
-  client = Aws::SecretsManager::Client.new(region: 'us-east-1')
+client = Aws::SecretsManager::Client.new(region: 'us-east-1')
 
-  secret_response = client.get_secret_value({ secret_id: "image-service-#{stage}", version_stage: 'AWSCURRENT' })
-  token = JSON.parse(secret_response.secret_string)['create-image-token']
+secret_response = client.get_secret_value(secret_id: "image-service-#{stage}", version_stage: 'AWSCURRENT')
+token = JSON.parse(secret_response.secret_string)['create-image-token']
 
-  serverless_file.gsub!('AUTH_TOKEN_CHANGE_ME', token)
-else
-  puts "Not grabbing AUTH_TOKEN from secret manager because we weren't run with 'deploy' or 'package'"
-end
+serverless_file.gsub!('AUTH_TOKEN_CHANGE_ME', token)
 
 serverless = YAML.load(serverless_file)
 bucket_name = serverless['custom']['imageUploadBucket']
