@@ -251,7 +251,7 @@ resources:
               CustomOriginConfig:
                 HTTPPort: '80'
                 HTTPSPort: '443'
-                OriginProtocolPolicy: http-only
+                OriginProtocolPolicy: https-only
           Enabled: true
           HttpVersion: 'http2'
           DefaultRootObject: index.html
