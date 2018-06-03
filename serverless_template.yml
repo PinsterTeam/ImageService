@@ -86,7 +86,7 @@ functions:
       - http:
           method: post
           cors: true
-          path: create
+          path: /
     memorySize: 1024
     environment:
           BUCKET_NAME: ${self:custom.imageUploadBucket}
