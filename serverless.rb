@@ -44,6 +44,48 @@ else
 end
 
 serverless = YAML.load(serverless_file)
+bucket_name = serverless['custom']['imageUploadBucket']
+
+unless bucket_name
+  puts "\n\nFailed to find the uploader bucket in the serverless_template.yml file.\n\n"
+  return
+end
+
+puts "Found Bucket name: #{bucket_name}"
+
+supported_stages.each { |supported_stage| bucket_name.gsub!(/-?#{supported_stage}\Z/, '') }
+
+# puts "Trimmed bucket name to not include stage suffix: #{bucket_name}"
+
+s3_name = 'S3Bucket' + bucket_name.gsub('${self:provider.stage}', stage).gsub(/[-.]/, '').capitalize
+s3_name_no_env = 'S3Bucket' + bucket_name.gsub('${self:provider.stage}', '').gsub(/[-.]/, '').capitalize
+
+puts "Looking for resource name starting with: #{s3_name} or #{s3_name_no_env}"
+
+# puts "Looking through keys: #{serverless['resources']['Resources'].keys}"
+found_keys = serverless['resources']['Resources'].keys.select { |key| /#{s3_name}.*/.match(key) }
+found_keys += serverless['resources']['Resources'].keys.select { |key| /#{s3_name_no_env}.*/.match(key) }
+
+if found_keys.size > 1
+  puts "\n\nFound more than one possible bucket name. Not sure what to do: #{found_keys}\n\n"
+  return
+end
+
+if found_keys.size < 1
+  puts "\nFailed to find a resource matching: \"#{s3_name}\". Found Keys: #{found_keys}\n\n"
+  return
+end
+
+new_bucket_name = bucket_name.gsub('${self:provider.stage}', stage)
+
+puts "New bucket name: #{new_bucket_name}"
+serverless['custom']['imageUploadBucket'] = new_bucket_name
+
+new_s3_name = 'S3Bucket' + bucket_name.gsub('${self:provider.stage}', stage).gsub(/[-.]/, '').capitalize
+
+puts "New s3 resource name: #{new_s3_name}"
+serverless['resources']['Resources'][new_s3_name] = serverless['resources']['Resources'].delete(found_keys.first)
+
 
 unless use_aws_credentials_file
   serverless['provider'].delete('profile')

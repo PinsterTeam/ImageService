@@ -172,6 +172,22 @@ stepFunctions:
 
 resources:
   Resources:
+  # if the bucket name is changed then this resource name must be changed! This is a stupid limitation of serverless
+  # This is handled by serverless.rb
+  # https://github.com/serverless/serverless/issues/2486
+  # https://github.com/serverless/serverless/issues/2749
+    S3BucketImageserviceuploadpinsterio:
+      Type: 'AWS::S3::Bucket'
+      Properties:
+        BucketName: ${self:custom.imageUploadBucket}
+        AccessControl: PublicWrite
+        CorsConfiguration:
+          CorsRules:
+            - AllowedHeaders: ['*']
+              AllowedMethods: [PUT, POST]
+              AllowedOrigins: ['*']
+              MaxAge: '3600'
+
     ImageHostBucket:
       Type: 'AWS::S3::Bucket'
       Properties:
@@ -180,7 +196,7 @@ resources:
         CorsConfiguration:
           CorsRules:
             - AllowedHeaders: ['*']
-              AllowedMethods: [GET, PUT, POST, HEAD]
+              AllowedMethods: [GET, PUT, HEAD]
               AllowedOrigins: ['*']
               MaxAge: '3600'
         WebsiteConfiguration:
