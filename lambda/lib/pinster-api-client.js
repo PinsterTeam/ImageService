@@ -39,7 +39,7 @@ module.exports = class PinsterApiClient {
                         callback(undefined, response, body);
                     }
                     else {
-                        callback(`Api call failed due to non good status. ${response}, ${body}`);
+                        callback(`Api call failed due to non good status. ${JSON.stringify(response)}, ${body}`);
                     }
                 }
             });
