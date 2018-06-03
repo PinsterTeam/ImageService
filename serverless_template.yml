@@ -59,7 +59,7 @@ custom:
   defaultStage: dev
   customDomain:
     domainName: images.image-service-${self:provider.stage}.pinster.io
-    basePath: '/'
+    basePath: '(none)'
     stage: ${self:provider.stage}
     createRoute53Record: true
     certificateName: images.image-service-dev.pinster.io # This is the name of the cert, it covers prod too.
