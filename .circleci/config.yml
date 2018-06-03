@@ -56,7 +56,9 @@ jobs:
           command: ruby serverless.rb package dev false
       - run:
           name: Deploy
-          command: sls deploy --stage dev -v
+          command: |
+            sls create_domain --stage dev -v
+            sls deploy --stage dev -v
 
   deploy-prod:
     <<: *defaults
@@ -80,7 +82,9 @@ jobs:
           command: ruby serverless.rb package prod false
       - run:
           name: Deploy
-          command: sls deploy --stage prod -v
+          command: |
+            sls create_domain --stage prod -v
+            sls deploy --stage prod -v
 
 workflows:
   version: 2

@@ -17,9 +17,12 @@ provider:
       - lambda/test
       - node_modules
       - "*.md"
+      - "*.rb"
+      - Gemfile
+      - Gemfile.lock
+      - .eslintrc.json
 
   iamRoleStatements:
-
     - Effect: 'Allow'
       Action:
         - "sns:Publish"
@@ -54,12 +57,12 @@ provider:
 custom:
   logRetentionInDays: 14
   defaultStage: dev
-#  customDomain:
-#    domainName: ${self:custom.imageHostBucket}
-#    basePath: ''
-#    stage: ${self:provider.stage}
-#    createRoute53Record: true
-#    certificateName: image-service-dev.pinster.io
+  customDomain:
+    domainName: images.${self:custom.imageHostBucket}
+    basePath: ''
+    stage: ${self:provider.stage}
+    createRoute53Record: true
+    certificateName: image-service-dev.pinster.io
   failure_notification_sns: ImageServiceFailureSNS${self:provider.stage}
   failure_notification_sns_arn:
     Fn::Join:
@@ -82,7 +85,6 @@ functions:
     events:
       - http:
           method: post
-          path: images
           cors: true
     memorySize: 1024
     environment:
@@ -105,7 +107,7 @@ functions:
     events:
       - http:
           method: get
-          path: images/generate
+          path: generate
           cors: true
     memorySize: 1024
     environment:
@@ -184,10 +186,10 @@ resources:
                 IndexDocument: index.html
                 RoutingRules:
                 - RedirectRule:
-                    HostName: "${self:custom.imageHostBucket}"
+                    HostName: ${self:custom.customDomain.domainName}
                     HttpRedirectCode: 307
                     Protocol: https
-                    ReplaceKeyPrefixWith: images/generate?key=
+                    ReplaceKeyPrefixWith: generate?key=
                   RoutingRuleCondition:
                     HttpErrorCodeReturnedEquals: 404
     ImageHostCloudfront:
@@ -244,4 +246,5 @@ resources:
 plugins:
   - serverless-step-functions
   - serverless-pseudo-parameters
+  - serverless-domain-manager
   - serverless-plugin-log-retention
