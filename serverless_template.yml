@@ -58,11 +58,11 @@ custom:
   logRetentionInDays: 14
   defaultStage: dev
   customDomain:
-    domainName: images.${self:custom.imageHostBucket}
+    domainName: images.image-service-${self:provider.stage}.pinster.io
     basePath: ''
     stage: ${self:provider.stage}
     createRoute53Record: true
-    certificateName: images.image-service-dev.pinster.io
+    certificateName: images.image-service-dev.pinster.io # This is the name of the cert, it covers prod too.
   failure_notification_sns: ImageServiceFailureSNS${self:provider.stage}
   failure_notification_sns_arn:
     Fn::Join:
@@ -86,7 +86,7 @@ functions:
       - http:
           method: post
           cors: true
-          path: /
+          path: create
     memorySize: 1024
     environment:
           BUCKET_NAME: ${self:custom.imageUploadBucket}
