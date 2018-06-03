@@ -29,7 +29,7 @@ module.exports = class Moderator {
             .then(result => {
                 console.log('The rekognition result:', util.inspect(result, {depth: 5}));
                 if (result.ModerationLabels.length > 0) {
-                    callback(new ModerationThresholdExceeded(result));
+                    callback(new ModerationThresholdExceeded(JSON.stringify(result)));
                 }
                 callback(undefined, event);
             })
