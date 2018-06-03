@@ -187,6 +187,19 @@ resources:
               AllowedMethods: [PUT, POST]
               AllowedOrigins: ['*']
               MaxAge: '3600'
+    S3BucketPermissions:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket: ${self:custom.imageUploadBucket}
+        PolicyDocument:
+          Statement:
+            - Principal: "*"
+              Action:
+                - s3:GetObject
+                - s3:PutObject
+              Effect: Allow
+              Sid: "AddPerm"
+              Resource: arn:aws:s3:::${self:custom.imageUploadBucket}/*
 
     ImageHostBucket:
       Type: 'AWS::S3::Bucket'
