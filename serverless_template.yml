@@ -188,7 +188,7 @@ resources:
               AllowedMethods: [PUT, POST]
               AllowedOrigins: ['*']
               MaxAge: '3600'
-    S3BucketPermissions:
+    S3BucketPermissionsImageUpload:
       Type: AWS::S3::BucketPolicy
       Properties:
         Bucket: ${self:custom.imageUploadBucket}
@@ -196,7 +196,6 @@ resources:
           Statement:
             - Principal: "*"
               Action:
-                - s3:GetObject
                 - s3:PutObject
               Effect: Allow
               Sid: "AddPerm"
@@ -206,7 +205,7 @@ resources:
       Type: 'AWS::S3::Bucket'
       Properties:
         BucketName: ${self:custom.imageHostBucket}
-        AccessControl: PublicRead
+        AccessControl: PublicReadWrite
         CorsConfiguration:
           CorsRules:
             - AllowedHeaders: ['*']
@@ -223,6 +222,20 @@ resources:
                     ReplaceKeyPrefixWith: generate?key=
                   RoutingRuleCondition:
                     HttpErrorCodeReturnedEquals: 404
+    S3BucketPermissionsImageHost:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket: ${self:custom.imageHostBucket}
+        PolicyDocument:
+          Statement:
+            - Principal: "*"
+              Action:
+                - s3:GetObject
+                - s3:PutObject
+              Effect: Allow
+              Sid: "AddPerm"
+              Resource: arn:aws:s3:::${self:custom.imageHostBucket}/*
+
     ImageHostCloudfront:
       Type: AWS::CloudFront::Distribution
       DependsOn:
