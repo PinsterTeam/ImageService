@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/PinsterTeam/ImageService#readme",
   "devDependencies": {
+    "serverless-domain-manager": "^2.3.6",
     "serverless-plugin-log-retention": "^1.0.3",
     "serverless-pseudo-parameters": "^1.4.2",
     "serverless-step-functions": "^1.3.0"
