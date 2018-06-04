@@ -4,12 +4,11 @@ const Base64Handler = require('./base64-handler');
 const _ = require('lodash');
 const md5 = require('md5');
 const BadRequest = require('./bad-request');
-const util = require('util');
 
 module.exports = class FileBuilder {
     constructor(base64Handler, cacheControl) {
         this.base64Handler = _.isUndefined(base64Handler) ? Base64Handler : base64Handler;
-        this.cacheControl = _.isUndefined(cacheControl) ? 'max-age=186400' : cacheControl;
+        this.cacheControl = _.isUndefined(cacheControl) ? 'max-age=86400' : cacheControl;
     }
 
     getFile(parsedRequest, callback) {
