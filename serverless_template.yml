@@ -246,7 +246,7 @@ resources:
             - ${self:custom.imageHostBucket}
           Comment: Cloudfront Distribution pointing to S3 bucket
           Origins:
-            - DomainName: "${self:custom.imageHostBucket}.s3.amazonaws.com"
+            - DomainName: "${self:custom.imageHostBucket}.s3-website-us-east-1.amazonaws.com"
               Id: S3Origin
               CustomOriginConfig:
                 HTTPPort: '80'
