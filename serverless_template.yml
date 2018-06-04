@@ -75,7 +75,7 @@ custom:
         - Ref: AWS::AccountId
         - ${self:custom.failure_notification_sns}
   imageHostBucket: image-service-${self:provider.stage}.pinster.io
-  imageBucketUrl: https://${self:custom.imageHostBucket}
+  imageHostBucketUrl: https://${self:custom.imageHostBucket}
   imageUploadBucket: image-service-upload-${self:provider.stage}.pinster.io
   thumbnailProcessorName: thumbnail-processor-${self:provider.stage}
   pinsterApiUrl: https://api-${self:provider.stage}.pinster.io
@@ -114,7 +114,7 @@ functions:
     memorySize: 1024
     environment:
           BUCKET: ${self:custom.imageHostBucket}
-          URL: ${self:custom.imageBucketUrl}
+          URL: ${self:custom.imageHostBucketUrl}
 
   moderate:
     handler: lambda/lambda.moderate
@@ -126,7 +126,7 @@ functions:
     environment:
         BUCKET: ${self:custom.imageHostBucket}
         PREFIX: ""
-        URL: ${self:custom.imageBucketUrl}
+        URL: ${self:custom.imageHostBucketUrl}
 
   notifySuccess:
     handler: lambda/lambda.notifySuccess
@@ -260,6 +260,7 @@ resources:
               - GET
               - HEAD
             Compress: true
+            DefaultTTL: 0
             TargetOriginId: S3Origin
             ForwardedValues:
               QueryString: true
