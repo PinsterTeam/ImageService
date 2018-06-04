@@ -96,7 +96,6 @@ workflows:
             branches:
               only:
                 - develop
-                - newell/cloudfront_for_https
       - deploy-prod:
           requires:
             - test
