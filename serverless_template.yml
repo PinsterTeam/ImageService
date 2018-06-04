@@ -260,6 +260,9 @@ resources:
               - GET
               - HEAD
             Compress: true
+            #This prevents CloudFront from caching our 307 redirect when we need to create a thumbnail on the fly.
+            #This also means that any item we want to serve from CloudFront MUST have a Cache-Control header set.
+            #Otherwise CloudFront will not cache anything.
             DefaultTTL: 0
             TargetOriginId: S3Origin
             ForwardedValues:
