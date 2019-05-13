@@ -48,7 +48,7 @@ module.exports = class ImageUploader {
             throw new BadRequest(exampleBody);
         }
 
-        const metadata = this.validateData(data, {user_id, imageable_type, imageable_id});
+        const metadata = await this.validateData(data, {user_id, imageable_type, imageable_id});
 
 
         const response = {
@@ -75,7 +75,7 @@ module.exports = class ImageUploader {
             });
     }
 
-    validateData(data, metadata) {
+    async validateData(data, metadata) {
         const errors = {};
         if (data.name) {
             const string = String(data.name);
@@ -106,7 +106,7 @@ module.exports = class ImageUploader {
             }
         }
 
-        if (errors.length > 0) {
+        if (Object.keys(errors).length > 0) {
             throw new BadRequest({errors: {data: errors}});
         }
 
