@@ -144,7 +144,8 @@ describe('ImageUploader', function () {
             }
 
             expect(err).to.equal(undefined);
-            expect(data).to.deep.equal({
+            expect(data).to.deep.equal(
+                {
                     statusCode: 200, body: JSON.stringify('asdf'), headers: {
                         'Access-Control-Allow-Origin': '*',
                         'Access-Control-Allow-Credentials': true,
@@ -194,7 +195,8 @@ describe('ImageUploader', function () {
         return imageUploader.perform(new eventFixture(), callback)
             .then(() => {
                 expect(dataOutput).to.equal(undefined);
-                return expect(errorOutput).to.deep.equal({
+                return expect(errorOutput).to.deep.equal(
+                    {
                         statusCode: 400, body: JSON.stringify({
                             errors: {
                                 data: {
