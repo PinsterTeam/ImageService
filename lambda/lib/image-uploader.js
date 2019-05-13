@@ -7,6 +7,18 @@ const InternalServerError = require('./internal-server-error');
 const BadRequest = require('./bad-request');
 const TokenProvider = require('./TokenProvider');
 
+const exampleBody = {
+    error: 'Bad Request. Required fields are missing.',
+    example_body: {
+        data: {
+            image: 'base64 encoded image',
+            name: 'Optional name of image',
+            description: 'Optional description',
+            featured: 'Optional unix epoch integer in ms'
+        }
+    }
+};
+
 module.exports = class ImageUploader {
     constructor(params = {}) {
         this.FileBuilder = _.isUndefined(params.fileBuilder) ? new FileBuilder() : params.fileBuilder;
@@ -28,32 +40,19 @@ module.exports = class ImageUploader {
         const imageable_id = decoded.imageable_id;
 
         if (!event.body) {
-            throw new BadRequest(
-                {
-                    error: 'Bad Request. Required fields are missing.',
-                    example_body: {
-                        data: {
-                            image: 'base64 encoded image'
-                        }
-                    }
-                });
-
+            throw new BadRequest(exampleBody);
         }
+
         const data = JSON.parse(event.body).data;
         if (!data || !data.image) {
-            throw new BadRequest(
-                {
-                    error: 'Bad Request. Required fields are missing.',
-                    example_body: {
-                        data: {
-                            image: 'base64 encoded image'
-                        }
-                    }
-                });
+            throw new BadRequest(exampleBody);
         }
 
+        const metadata = this.validateData(data, {user_id, imageable_type, imageable_id});
+
+
         const response = {
-            metadata: {user_id, imageable_type, imageable_id},
+            metadata: metadata,
             image: data.image,
             bucket: this.bucket
         };
@@ -74,5 +73,43 @@ module.exports = class ImageUploader {
                 console.error('Error processing: ', err);
                 return callback(err.generateResponse());
             });
+    }
+
+    validateData(data, metadata) {
+        const errors = {};
+        if (data.name) {
+            const string = String(data.name);
+            if (string && string.length < 140 && string.length > 3) {
+                metadata.name = data.name.replace(/[^\w\s]/gi, '');
+            }
+            else {
+                errors.name = 'Must be between 3 and 140 characters A-z0-9. Omit or null the field otherwise.';
+            }
+        }
+
+        if (data.description) {
+            const string = String(data.description);
+            if (string && string.length < 140 && string.length > 3) {
+                metadata.description = data.description.replace(/[^\w\s\\.!?]/gi, '');
+            }
+            else {
+                errors.description = 'Must be between 3 and 140 characters A-z0-9. Omit or null the field otherwise.';
+            }
+        }
+
+        if (data.featured) {
+            if (Number.isInteger(data.featured)) {
+                metadata.featured = data.featured;
+            }
+            else {
+                errors.featured = 'Must be an integer. Omit or null the field otherwise.';
+            }
+        }
+
+        if (errors.length > 0) {
+            throw new BadRequest({errors: {data: errors}});
+        }
+
+        return metadata;
     }
 };

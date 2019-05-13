@@ -40,6 +40,22 @@ class TokenProvider {
             throw new Forbidden(`Token was invalid. Error: ${JSON.stringify(err)}`);
         }
     }
+
+    //Returns parsed payload of JWT
+    async generate(payload) {
+        const options = {
+            issuer: this.imageServiceUrl,
+            audience: this.pinsterApiUrl,
+            expiresIn: '60 seconds',
+            notBefore: '-1ms',
+            algorithm: 'RS256'
+        };
+        try {
+            return jwt.sign(payload, this.privateKey, options);
+        } catch (err) {
+            throw new Forbidden(`Token was invalid. Error: ${JSON.stringify(err)}`);
+        }
+    }
 }
 
 module.exports = TokenProvider;
