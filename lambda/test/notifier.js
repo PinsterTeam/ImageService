@@ -33,6 +33,7 @@ const MockSNSClient = class MockSNSClient {
         }
     }
 };
+
 describe('Notifier', function () {
     it('can notify success', function () {
         let notifier = new Notifier({apiClient: new MockApiClient(false)});
