@@ -34,6 +34,9 @@ class TokenProvider {
             return jwt.verify(token, this.apiPublicKey, {
                 audience: this.imageServiceUrl,
                 issuer: this.pinsterApiUrl,
+                ignoreExpiration: false,
+                ignoreNotBefore: false,
+                clockTolerance: 10,
                 algorithms: ['RS256']
             });
         } catch (err) {

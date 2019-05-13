@@ -61,20 +61,6 @@ module.exports = class ImageUploader {
         return response;
     }
 
-    async perform(event, callback) {
-        return this.parseRequest(event)
-            .then(this.FileBuilder.getFile)
-            .then(this.FileWriter.saveObject)
-            .then(saveObjectResponse => {
-                console.debug('Successful response: ', saveObjectResponse);
-                return callback(undefined, saveObjectResponse.generateResponse());
-            })
-            .catch(err => {
-                console.error('Error processing: ', err);
-                return callback(err.generateResponse());
-            });
-    }
-
     validateData(data, metadata) {
         const errors = {};
         if (data.name) {
@@ -111,5 +97,19 @@ module.exports = class ImageUploader {
         }
 
         return metadata;
+    }
+
+    async perform(event, callback) {
+        return this.parseRequest(event)
+            .then(this.FileBuilder.getFile)
+            .then(this.FileWriter.saveObject)
+            .then(saveObjectResponse => {
+                console.debug('Successful response: ', saveObjectResponse);
+                return callback(undefined, saveObjectResponse.generateResponse());
+            })
+            .catch(err => {
+                console.error('Error processing: ', err);
+                return callback(err.generateResponse());
+            });
     }
 };
