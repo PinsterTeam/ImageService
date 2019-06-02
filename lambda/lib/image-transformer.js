@@ -18,8 +18,7 @@ module.exports = class ImageTransformer {
         else {
             Sharp(body)
                 .rotate()
-                .resize(width, height)
-                .max()
+                .resize(width, height, {fit: 'inside'})
                 .toFormat(format)
                 .toBuffer()
                 .then(data => {
