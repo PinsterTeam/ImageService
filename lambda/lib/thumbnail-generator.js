@@ -3,7 +3,6 @@
 const AWSS3 = require('aws-sdk/clients/s3');
 const util = require('util');
 const _ = require('lodash');
-const async = require('async');
 const BadRequest = require('./bad-request');
 const InternalServerError = require('./internal-server-error');
 const MovedPermanently = require('./moved-permanently');
@@ -14,125 +13,99 @@ const MAX_SIZE = 5000; // 5 thousand pixels (wide or high)
 const IMAGE_KEY_PATTERN_REGEX = /(([/a-zA-Z0-9]+)([a-zA-Z0-9]+))_((\d+|auto)x(\d+|auto))/;
 
 module.exports = class ThumbnailGenerator {
-    constructor(bucket, url, s3, imageTransformer, allowedDimensions) {
-        this.bucket = _.isUndefined(bucket) ? process.env.BUCKET : bucket;
-        this.url = _.isUndefined(url) ? process.env.URL : url;
-        this.s3 = _.isUndefined(s3) ? new AWSS3() : s3;
-        this.imageTransformer = _.isUndefined(imageTransformer) ? ImageTransformer : imageTransformer;
-        this.allowedDimensions = _.isUndefined(allowedDimensions) ? new Set() : allowedDimensions;
+    constructor(params = {}) {
+        this.bucket = _.isUndefined(params.bucket) ? process.env.BUCKET : params.bucket;
+        this.url = _.isUndefined(params.url) ? process.env.URL : params.url;
+        this.s3Put = _.isUndefined(params.s3Put) ? async (s3Params) => {
+            return new AWSS3().putObject(s3Params).promise();
+        } : params.s3Put;
+        this.s3Get = _.isUndefined(params.s3Get) ? async (s3Params) => {
+            return new AWSS3().getObject(s3Params).promise();
+        } : params.s3Get;
+        this.imageTransformer = _.isUndefined(params.imageTransformer) ? new ImageTransformer() : params.imageTransformer;
+        this.allowedDimensions = _.isUndefined(params.allowedDimensions) ? new Set() : params.allowedDimensions;
     }
 
-    static parseRequestedImage(requestedImageKey, callback) {
+    async parseRequestedImage(requestedImageKey) {
+        console.log('Parsing request');
         const match = requestedImageKey.match(IMAGE_KEY_PATTERN_REGEX);
 
         if (match === null) {
-            callback(new BadRequest(`Key: '${requestedImageKey}' is not a supported image file!`));
+            throw new BadRequest(`Key: '${requestedImageKey}' is not a supported image file!`);
         }
-        else {
-            console.debug('Match data: ', match);
-            const dimensions = match[4]; //400xauto, for example.
-            const width = match[5] === 'auto' ? null : Math.min(parseInt(match[5], 10), MAX_SIZE);
-            const height = match[6] === 'auto' ? null : Math.min(parseInt(match[6], 10), MAX_SIZE);
-            const originalKey = match[1];
-            const newKey = match[0]; //whatever they requested is what we'll make
 
-            let imageData = {
-                dimensions: dimensions,
-                width: width,
-                height: height,
-                originalKey: originalKey,
-                newKey: newKey
-            };
+        console.debug('Match data: ', match);
+        const dimensions = match[4]; //400xauto, for example.
+        const width = match[5] === 'auto' ? null : Math.min(parseInt(match[5], 10), MAX_SIZE);
+        const height = match[6] === 'auto' ? null : Math.min(parseInt(match[6], 10), MAX_SIZE);
+        const originalKey = match[1];
+        const newKey = match[0]; //whatever they requested is what we'll make
 
-            console.log('Image data', imageData);
+        let imageData = {
+            dimensions: dimensions,
+            width: width,
+            height: height,
+            originalKey: originalKey,
+            newKey: newKey
+        };
 
-            callback(undefined, imageData);
-        }
+        console.log('Image data', imageData);
+
+        return imageData;
     }
 
-    upload(parsedParameters, callback) {
-        this.s3.putObject(
-            {
-                Body: parsedParameters.buffer,
-                Bucket: this.bucket,
-                ContentType: 'image/jpeg',
-                Key: parsedParameters.newKey,
-                CacheControl: `max-age=${MAX_AGE}`,
-            }, (err) => {
-                if (err) {
-                    console.log(util.inspect(err, {depth: 5}));
-                    callback(new InternalServerError(err));
-                }
-                else {
-                    callback(undefined, new MovedPermanently('',
-                        {
-                            location: `${this.url}/${parsedParameters.newKey}`,
-                            'Cache-Control': 'no-cache, no-store, must-revalidate',
-                            Pragma: 'no-cache',
-                            Expires: '0'
-                        }));
-                }
+    async upload(parsedParameters) {
+        console.log('Uploading image');
+        const s3Params = {
+            Body: parsedParameters.buffer,
+            Bucket: this.bucket,
+            ContentType: 'image/jpeg',
+            Key: parsedParameters.newKey,
+            CacheControl: `max-age=${MAX_AGE}`,
+        };
+        return this.s3Put(s3Params)
+            .then(() => {
+                return new MovedPermanently('',
+                    {
+                        location: `${this.url}/${parsedParameters.newKey}`,
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        Pragma: 'no-cache',
+                        Expires: '0'
+                    });
+            }).catch(err => {
+                console.error(util.inspect(err, {depth: 5}));
+                throw new InternalServerError(err);
             });
     }
 
-    download(parsedParameters, callback) {
-        this.s3.getObject({Bucket: this.bucket, Key: parsedParameters.originalKey}, (err, data) => {
-            if (err) {
-                console.log(util.inspect(err, {depth: 5}));
-                callback(new InternalServerError(err));
-            }
-            else {
+    async download(parsedParameters) {
+        console.log('Downloading file');
+        const s3Params = {Bucket: this.bucket, Key: parsedParameters.originalKey};
+        return this.s3Get(s3Params)
+            .then(data => {
                 parsedParameters.body = data.Body;
-                callback(undefined, parsedParameters);
-            }
-        });
+                return parsedParameters;
+            }).catch(err => {
+                console.error(util.inspect(err, {depth: 5}));
+                throw new InternalServerError(err);
+            });
     }
 
+    async checkParameters(parsedParameters) {
+        console.log('Checking parameters');
+        if (this.allowedDimensions.size > 0 && !this.allowedDimensions.has(parsedParameters.dimensions)) {
+            throw new BadRequest(`Invalid dimensions specified: ${parsedParameters.dimensions}. ` +
+                `Valid dimensions are: ${this.allowedDimensions}`);
+        }
+        return parsedParameters;
+    }
 
-    generate(event, callback) {
+    async generate(event) {
         console.log(util.inspect(event, {depth: 5}));
-
-        let self = this;
-        let tasks = [];
-
-        tasks.push((callback) => {
-            console.log('Parsing request');
-            ThumbnailGenerator.parseRequestedImage(event.queryStringParameters.key, callback);
-        });
-
-        tasks.push((parsedParameters, callback) => {
-            console.log('Checking parameters');
-            if (self.allowedDimensions.size > 0 && !self.allowedDimensions.has(parsedParameters.dimensions)) {
-                callback(new BadRequest(`Invalid dimensions specified: ${parsedParameters.dimensions}. ` +
-                    `Valid dimensions are: ${self.allowedDimensions}`));
-            }
-            else {
-                callback(undefined, parsedParameters);
-            }
-        });
-
-        tasks.push((parsedParameters, callback) => {
-            console.log('Downloading file');
-            this.download(parsedParameters, callback);
-        });
-
-        tasks.push((parsedParameters, callback) => {
-            console.log('Transforming image');
-            this.imageTransformer.transformImage(parsedParameters, callback);
-        });
-
-        tasks.push((parsedParameters, callback) => {
-            console.log('Uploading image');
-            this.upload(parsedParameters, callback);
-        });
-
-        async.waterfall(tasks, (err, data) => {
-            if (err) {
-                err.build(callback);
-            }
-            else {
-                data.build(callback);
-            }
-        });
+        return this.parseRequestedImage(event.queryStringParameters.key)
+            .then((parsedParameters) => this.checkParameters(parsedParameters))
+            .then((parsedParameters) => this.download(parsedParameters))
+            .then((parsedParameters) => this.imageTransformer.transformImage(parsedParameters))
+            .then((parsedParameters) => this.upload(parsedParameters));
     }
 };

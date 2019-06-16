@@ -20,7 +20,7 @@ module.exports.upload = async (event) => {
                 const awsResponse = err.generateResponse();
                 console.debug('Response for aws: ', awsResponse);
                 return awsResponse;
-            } catch(error) {
+            } catch (error) {
                 console.error('Error generating error response', error);
                 throw err;
             }
@@ -32,9 +32,26 @@ module.exports.startExecution = (event, context, callback) => {
     return stepFunctions.perform(event, callback);
 };
 
-module.exports.generateThumbnail = (event, context, callback) => {
-    const thumbnailGenerator = new ThumbnailGenerator();
-    return thumbnailGenerator.generate(event, callback);
+module.exports.generateThumbnail = async (event) => {
+    return await new ThumbnailGenerator()
+        .generate(event)
+        .then(saveObjectResponse => {
+            console.debug('Successful response: ', saveObjectResponse);
+            const awsResponse = saveObjectResponse.generateResponse();
+            console.debug('Response for aws: ', awsResponse);
+            return awsResponse;
+        })
+        .catch(err => {
+            console.error('Error processing: ', err);
+            try {
+                const awsResponse = err.generateResponse();
+                console.debug('Response for aws: ', awsResponse);
+                return awsResponse;
+            } catch (error) {
+                console.error('Error generating error response', error);
+                throw err;
+            }
+        });
 };
 
 module.exports.moderate = (event, context, callback) => {
@@ -57,7 +74,7 @@ module.exports.notifySuccess = async (event) => {
                 const awsResponse = err.generateResponse();
                 console.debug('Response for aws: ', awsResponse);
                 return awsResponse;
-            } catch(error) {
+            } catch (error) {
                 console.error('Error generating error response', error);
                 throw err;
             }
@@ -79,7 +96,7 @@ module.exports.notifyFailure = async (event) => {
                 const awsResponse = err.generateResponse();
                 console.debug('Response for aws: ', awsResponse);
                 return awsResponse;
-            } catch(error) {
+            } catch (error) {
                 console.error('Error generating error response', error);
                 throw err;
             }
