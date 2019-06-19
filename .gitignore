@@ -13,3 +13,5 @@ serverless.yml
 .idea/
 
 *package-lock.json
+
+*dummy.jpeg
