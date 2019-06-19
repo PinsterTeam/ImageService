@@ -38,7 +38,6 @@ module.exports = class ImageTransformer {
             });
     }
 
-
     async buildWatermark(width, height) {
         if (width <= 100 || height <= 100) {
             return false;
